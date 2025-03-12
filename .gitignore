@@ -1,0 +1,18 @@
+# Next.js
+next-app/.next
+next-app/node_modules
+
+# Server
+server/node_modules
+server/.env
+
+# Android
+android-project/.idea
+android-project/.gradle
+android-project/local.properties
+android-project/build
+android-project/app/build
+
+# General
+.DS_Store
+*.log
