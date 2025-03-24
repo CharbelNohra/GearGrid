@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "GearGrid",
-  description: "e-commerce platform for laptop gear",
+  description: "E-commerce platform for laptop gears",
 };
 
 export default function RootLayout({
