@@ -1,9 +1,7 @@
-import Header from "./partials/Header";
-
 export default function Home() {
   return (
-    <div>
-      <Header/>
+    <div className="home p-4 bg-white text-black">
+      <h1 className="text-2xl font-bold">Home</h1>
     </div>
   );
 }
