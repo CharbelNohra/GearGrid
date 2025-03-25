@@ -46,7 +46,7 @@ const Footer = () => {
       </div>
 
       {/* Copyright Section */}
-      <div className="text-center text-sm opacity-75 mt-6">
+      <div className="text-center text-sm mt-6">
         <p>© {new Date().getFullYear()} GearGrid. All rights reserved.</p>
       </div>
     </footer>
