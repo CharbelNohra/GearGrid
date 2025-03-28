@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaInstagram, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -30,16 +30,10 @@ const Footer = () => {
 
         {/* Social Media Links */}
         <div className="flex space-x-4">
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition">
-            <FaFacebookF size={20} />
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition">
-            <FaTwitter size={20} />
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition">
+          <a href="https://www.instagram.com/ch.nohra04" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition">
             <FaInstagram size={20} />
           </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition">
+          <a href="https://www.linkedin.com/in/charbel-nohra04" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition">
             <FaLinkedin size={20} />
           </a>
         </div>
