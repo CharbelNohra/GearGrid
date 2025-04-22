@@ -14,14 +14,12 @@ Whether you're a gamer, developer, or creative professional, GearGrid is here to
 
 ## Tech Stack
 
-- **Frontend:** NextJs, JavaScript, Tailwindcss, daysiui, shadcn
+- **Frontend:** NextJs, JavaScript, Tailwindcss, daysiui, Flutter
 - **Backend:** Node.js, Express.js
 - **Database:** PostgreSQL
 
 ## Installation
 
-To run this project locally, follow these steps:
-
-1. Clone the repository:
+Clone the repository:
    ```bash
    git clone https://github.com/yourusername/GearGrid.git
