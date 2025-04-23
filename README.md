@@ -14,7 +14,7 @@ Whether you're a gamer, developer, or creative professional, GearGrid is here to
 
 ## Tech Stack
 
-- **Frontend:** NextJs, JavaScript, Tailwindcss, daysiui, Flutter
+- **Frontend:** NextJs, JavaScript, Tailwindcss, shadcn, Flutter
 - **Backend:** Node.js, Express.js
 - **Database:** PostgreSQL
 
