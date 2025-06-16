@@ -16,7 +16,7 @@ Whether you're a gamer, developer, or creative professional, GearGrid is here to
 
 - **Frontend:** NextJs, JavaScript/TypeScript, Tailwindcss, shadcn, Flutter
 - **Backend:** Node.js, Express.js
-- **Database:** PostgreSQL
+- **Database:** MongoDB
 
 ## Installation
 
