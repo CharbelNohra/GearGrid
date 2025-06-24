@@ -22,4 +22,4 @@ Whether you're a gamer, developer, or creative professional, GearGrid is here to
 
 Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/GearGrid.git
+   git clone https://github.com/CharbelNohra/GearGrid.git
