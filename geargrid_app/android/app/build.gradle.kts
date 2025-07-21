@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.geargrid_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "25.2.9519653"
+    ndkVersion = "27.2.12479018"
 
 
     compileOptions {

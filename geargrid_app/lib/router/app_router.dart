@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geargrid/animated_splash.dart';
 import 'package:go_router/go_router.dart';
-
 import '../features/auth/screens/login_screen.dart';
-// import '../features/auth/screens/register_screen.dart';
-// import '../features/products/screens/product_list_screen.dart';
-// import '../features/cart/screens/cart_screen.dart';
-// import '../features/admin/screens/admin_dashboard.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/',
     routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const AnimatedSplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         name: 'login',
