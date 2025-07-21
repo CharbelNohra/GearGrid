@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+// import Link from "next/link"
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import {

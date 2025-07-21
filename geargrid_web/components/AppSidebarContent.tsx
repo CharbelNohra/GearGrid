@@ -1,5 +1,7 @@
-// components/AppSidebarContent.tsx
+"use client";
+
 import Link from "next/link";
+import { useSidebar } from "./ui/sidebar";
 import {
     Sidebar,
     SidebarContent,
@@ -38,6 +40,10 @@ const items = [
 ];
 
 const AppSidebarContent = () => {
+
+    const { state } = useSidebar();
+    const collapsed = state === "collapsed";
+
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader className="py-4">
@@ -45,8 +51,14 @@ const AppSidebarContent = () => {
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                             <Link href="/">
-                                <Image src="/GearGrid.svg" alt="fav" width={60} height={50} />
-                                <span>GearGrid</span>
+                                {collapsed ? (
+                                    <Image src="/logo.png" alt="icon" width={50} height={50} />
+                                ) : (
+                                    <>
+                                        <Image src="/GearGrid.svg" alt="full logo" width={60} height={50} />
+                                        <span>GearGrid</span>
+                                    </>
+                                )}
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
