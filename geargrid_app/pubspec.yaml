@@ -41,6 +41,8 @@ dependencies:
   flutter_native_splash: ^2.4.6
   google_fonts: ^6.1.0
   shared_preferences: ^2.5.3
+  http: ^1.2.1
+  flutter_hooks: ^0.20.5
 
 
 
