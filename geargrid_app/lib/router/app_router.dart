@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geargrid/animated_splash.dart';
 import 'package:go_router/go_router.dart';
+import '../common/layouts/main_layout.dart';
+import '../features/auth/screens/forgot_password.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/register_screen.dart';
@@ -14,16 +16,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/',
         builder: (context, state) => const AnimatedSplashScreen(),
       ),
+
       GoRoute(
         path: '/login',
         name: 'login',
         builder: (context, state) => LoginScreen(),
       ),
+
       GoRoute(
         path: '/register',
         name: 'register',
         builder: (context, state) => RegisterScreen(),
       ),
+
       GoRoute(
         path: '/otp',
         name: 'otp',
@@ -35,6 +40,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ? (ModalRoute.of(context)!.settings.arguments as Map)['phoneNumber']
                 : '',
         ),
+      ),
+
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => ForgotPasswordScreen(),
+      ),
+
+      GoRoute(
+        path: '/main-layout',
+        name: 'main-layout',
+        builder: (context, state) => MainLayout(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

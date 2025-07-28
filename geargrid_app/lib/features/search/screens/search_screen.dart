@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
+class SearchScreen extends StatelessWidget {
+  const SearchScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Text(
-          'Notifications Screen',
+          'Search Screen',
           style: TextStyle(
             fontSize: 32,
             color: Theme.of(context).colorScheme.onSurface,

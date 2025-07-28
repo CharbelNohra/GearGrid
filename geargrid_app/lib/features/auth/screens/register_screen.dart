@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../common/widgets/custom_texTfield.dart';
+import '../../../common/widgets/custom_phonefield.dart';
+import '../../../common/widgets/custom_textfield.dart';
 import '../../../common/widgets/dropdown_list.dart';
 import '../../../core/constants/countries.dart';
 import '../../../core/constants/countries_phone_code.dart';
@@ -99,9 +100,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
   }
 
   void previousStep() {
@@ -166,23 +170,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               CustomTextField(
                                 controller: emailController,
                                 hintText: "Email",
+                                prefixIcon: Icon(
+                                  Icons.email_outlined,
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  size: 20,
+                                ),
                                 keyboardType: TextInputType.emailAddress,
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
                                 controller: nameController,
                                 hintText: "Full Name",
+                                prefixIcon: Icon(
+                                  Icons.person_outline,
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  size: 20,
+                                ),
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
                                 controller: passwordController,
                                 hintText: "Password",
+                                prefixIcon: Icon(
+                                  Icons.lock_outline,
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  size: 20,
+                                ),
                                 isPassword: true,
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
                                 controller: confirmPasswordController,
                                 hintText: "Confirm Password",
+                                prefixIcon: Icon(
+                                  Icons.lock_outline,
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  size: 20,
+                                ),
                                 isPassword: true,
                               ),
                             ],
@@ -215,33 +239,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onChanged: (val) {
                                   setState(() {
                                     selectedCountry = val;
-                                    final code =
-                                        countryPhoneCodes[val ?? ''] ?? '';
-                                    if (code.isNotEmpty) {
-                                      phoneController.text = code;
-                                      phoneController.selection =
-                                          TextSelection.fromPosition(
-                                            TextPosition(
-                                              offset:
-                                                  phoneController.text.length,
-                                            ),
-                                          );
-                                    } else {
-                                      phoneController.text = '';
-                                    }
                                   });
-                                },
+                                }
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
                                 controller: addressController,
                                 hintText: "Address",
+                                prefixIcon: Icon(
+                                  Icons.location_on_outlined,
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  size: 20,
+                                ),
                               ),
                               const SizedBox(height: 16),
-                              CustomTextField(
+                              CustomPhoneField(
                                 controller: phoneController,
-                                hintText: "Phone Number",
-                                keyboardType: TextInputType.number,
+                                hintText: "Enter phone number",
+                                countryCode:
+                                    selectedCountry != null
+                                        ? countryPhoneCodes[selectedCountry!]
+                                        : null,
+                                onCountryTap: () {
+                                  // Optional: You can add logic to open country selector here
+                                  // For now, it just shows the country code is tappable
+                                },
                               ),
                             ],
                           ),

@@ -20,8 +20,6 @@ class CustomDropdownField<T> extends StatelessWidget {
 
     return InputDecorator(
       decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
         filled: true,
         fillColor: colorScheme.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -39,7 +37,7 @@ class CustomDropdownField<T> extends StatelessWidget {
           style: TextStyle(color: colorScheme.onSurface),
           hint: Text(
             hintText,
-            style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
+            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
           items: items,
           onChanged: onChanged,

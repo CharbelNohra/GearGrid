@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ThemeModeProvider with ChangeNotifier {
   static const _key = 'theme_mode';
 
-  ThemeMode _themeMode = ThemeMode.system;
+  // Default to dark mode instead of system
+  ThemeMode _themeMode = ThemeMode.dark;
 
   ThemeMode get themeMode => _themeMode;
 
@@ -16,7 +17,18 @@ class ThemeModeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final themeIndex = prefs.getInt(_key);
 
-    _themeMode = ThemeMode.values[themeIndex ?? ThemeMode.system.index];
+    // Only allow light or dark modes, default to dark if no preference saved
+    if (themeIndex != null) {
+      if (themeIndex == ThemeMode.light.index) {
+        _themeMode = ThemeMode.light;
+      } else {
+        _themeMode = ThemeMode.dark;
+      }
+    } else {
+      // If no preference is saved, default to dark and save it
+      _themeMode = ThemeMode.dark;
+      await prefs.setInt(_key, ThemeMode.dark.index);
+    }
     notifyListeners();
   }
 
@@ -28,9 +40,12 @@ class ThemeModeProvider with ChangeNotifier {
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    _themeMode = mode;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_key, mode.index);
-    notifyListeners();
+    // Only allow light or dark modes
+    if (mode == ThemeMode.light || mode == ThemeMode.dark) {
+      _themeMode = mode;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_key, mode.index);
+      notifyListeners();
+    }
   }
 }
