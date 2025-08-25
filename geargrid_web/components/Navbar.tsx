@@ -71,16 +71,10 @@ const Navbar = () => {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ) : (
-                    // LOGIN / REGISTER BUTTONS
                     <div className="flex gap-2">
                         <Link href="/auth/login">
-                            <Button className="shadow-xs" variant="outline" style={{borderRadius: "10px"}}>
-                                Login
-                            </Button>
-                        </Link>
-                        <Link href="/auth/register">
                             <Button className="shadow-xs" style={{borderRadius: "10px"}}>
-                                Register
+                                Login
                             </Button>
                         </Link>
                     </div>

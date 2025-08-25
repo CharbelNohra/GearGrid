@@ -5,19 +5,20 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter(); // use the hook
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // TEMP: simulate API call
+    
     setTimeout(() => {
       setIsLoading(false);
+      router.push("/dashboard");
     }, 2000);
   };
 
@@ -29,9 +30,8 @@ const Login = () => {
 
       <div className="text-center flex flex-col mt-4">
         <h1 className="text-2xl font-bold mb-2">Welcome back 👋</h1>
-        <p className="text-muted-foreground mb-4">Log in to your account</p>
+        <p className="text-muted-foreground mb-4">Log in as Administrator</p>
 
-        {/* Email & Password Form */}
         <form className="flex flex-col items-center" onSubmit={handleSubmit}>
           <Input
             type="email"
@@ -62,13 +62,6 @@ const Login = () => {
             }
           />
 
-          <Link
-            href="/auth/forgot-password"
-            className="text-sm text-primary mb-4 self-end pr-1"
-          >
-            Forgot password?
-          </Link>
-
           <Button
             type="submit"
             className="w-80 h-10"
@@ -78,13 +71,6 @@ const Login = () => {
             {isLoading ? "Logging in..." : "Login"}
           </Button>
         </form>
-
-        <p className="text-sm mt-4">
-          Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="text-primary">
-            Register
-          </Link>
-        </p>
       </div>
     </div>
   );
