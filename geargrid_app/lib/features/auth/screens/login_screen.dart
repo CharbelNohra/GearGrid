@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/images/GearGrid.png', height: 100),
+                Image.asset('assets/images/GearGrid.png'),
                 const SizedBox(height: 32),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -103,9 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text(
                         "Welcome back 👋",
-                        style: theme.textTheme.headlineMedium?.copyWith(
+                        style: TextStyle(
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
-                          color: colors.onPrimary,
+                          color: colors.primary,
                         ),
                       ),
                       const SizedBox(height: 8),
