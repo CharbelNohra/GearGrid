@@ -2,7 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import '../../features/Home/screen/home.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
-import '../../features/profile/screens/settings_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
 import '../../features/search/screens/search_screen.dart';
 
 class MainLayout extends StatefulWidget {
