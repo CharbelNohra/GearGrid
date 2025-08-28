@@ -120,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget buildLogo() {
     return Column(
-      children: [Image.asset('assets/images/GearGrid.png', height: 100)],
+      children: [Image.asset('assets/images/logo.png', width: 250,)],
     );
   }
 

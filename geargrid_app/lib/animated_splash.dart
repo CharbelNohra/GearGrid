@@ -25,7 +25,9 @@ class _AnimatedSplashScreenState extends State<AnimatedSplashScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Image.asset(
-          'assets/images/GearGrid.gif',
+          'assets/gif/logo.gif',
+          width: 250,
+          height: 250,
         ),
       ),
     );
