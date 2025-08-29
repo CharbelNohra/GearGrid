@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geargrid/animated_splash.dart';
 import 'package:go_router/go_router.dart';
 import '../common/layouts/main_layout.dart';
-import '../features/auth/screens/forgot_password.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/register_screen.dart';
