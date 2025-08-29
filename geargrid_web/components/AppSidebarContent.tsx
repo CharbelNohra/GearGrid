@@ -70,19 +70,18 @@ const AppSidebarContent = () => {
       <SidebarHeader className="py-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton className="justify-center" size="lg" asChild>
               <Link href="/">
                 {collapsed ? (
-                  <Image src="/logo.png" alt="icon" width={50} height={50} />
+                  <Image src="/assets/svg/launcher_icon.svg" alt="icon" width={100} height={60} />
                 ) : (
                   <>
                     <Image
-                      src="/GearGrid.svg"
+                      src="/assets/svg/logo.svg"
                       alt="full logo"
-                      width={60}
-                      height={50}
+                      width={100}
+                      height={100}
                     />
-                    <span>GearGrid</span>
                   </>
                 )}
               </Link>

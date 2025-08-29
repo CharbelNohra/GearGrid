@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter(); // use the hook
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +23,9 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col align-center items-center mt-30 h-screen">
+    <div className="flex flex-col align-center items-center mt-30">
       <div>
-        <Image src="/GearGrid.svg" alt="Logo" width={200} height={200} />
+        <Image src="/assets/svg/logo.svg" alt="Logo" width={200} height={200} />
       </div>
 
       <div className="text-center flex flex-col mt-4">
