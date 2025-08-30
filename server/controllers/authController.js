@@ -36,7 +36,7 @@ export async function register(req, res) {
             address,
             phoneNumber: normalizedPhone,
             otp,
-            otpExpires: Date.now() + 1 * 60 * 1000,
+            otpExpires: Date.now() + 3 * 60 * 1000,
             role: "client"
         });
 
@@ -63,7 +63,7 @@ export async function verifyOTP(req, res) {
 
     user.isVerified = true;
     user.otp = undefined;
-    user.otpExpires = undefined;
+    user.otpExpires = Date.now() + 3 * 60 * 1000;
     await user.save();
 
     res.json({ message: "Account verified successfully" });
@@ -115,12 +115,16 @@ export async function forgotPassword(req, res) {
 
 // RESET PASSWORD
 export async function resetPassword(req, res) {
-    const { email, otp, newPassword } = req.body;
+    const { email, otp, newPassword, confirmPassword } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) return res.status(404).json({ error: "User not found" });
     if (user.otp !== otp || Date.now() > user.otpExpires) {
         return res.status(400).json({ error: "Invalid or expired OTP" });
+    }
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: "Password and confirm password do not match" });
     }
 
     user.password = await bcrypt.hash(newPassword, 10);
