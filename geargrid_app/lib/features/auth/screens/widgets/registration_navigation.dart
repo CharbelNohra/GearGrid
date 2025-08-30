@@ -22,7 +22,6 @@ class RegistrationNavigation extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Back arrow - only if currentStep > 0
         if (currentStep > 0)
           IconButton(
             icon: Icon(
@@ -32,9 +31,7 @@ class RegistrationNavigation extends StatelessWidget {
             onPressed: onPrevious,
           )
         else
-          const SizedBox(width: 48), // spacer to keep alignment
-
-        // Next or Submit arrow
+          const SizedBox(width: 48),
         IconButton(
           icon: Icon(
             isLastStep ? Icons.check_circle : Icons.arrow_forward_ios,

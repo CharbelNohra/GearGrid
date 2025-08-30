@@ -1,4 +1,3 @@
-// lib/features/auth/widgets/login_welcome_header.dart
 import 'package:flutter/material.dart';
 
 class LoginWelcomeHeader extends StatelessWidget {

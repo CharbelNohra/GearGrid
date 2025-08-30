@@ -22,13 +22,11 @@ class RegistrationFormState extends State<RegistrationForm> {
   final _pageController = PageController();
   int currentStep = 0;
 
-  // Step 1 Controllers
   final emailController = TextEditingController();
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  // Step 2 Controllers
   final addressController = TextEditingController();
   final phoneController = TextEditingController();
   String? selectedCountry;
@@ -99,7 +97,6 @@ class RegistrationFormState extends State<RegistrationForm> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Complete registration
       final formData = {
         'email': emailController.text.trim(),
         'name': nameController.text.trim(),

@@ -1,4 +1,3 @@
-// lib/features/auth/widgets/registration_step_one.dart
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/custom_textfield.dart';
 import 'step_header.dart';

@@ -1,4 +1,3 @@
-// lib/features/auth/widgets/auth_icon_container.dart
 import 'package:flutter/material.dart';
 
 class AuthIconContainer extends StatelessWidget {

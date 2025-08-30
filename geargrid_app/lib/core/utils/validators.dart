@@ -5,7 +5,6 @@ class Validators {
   }
 
   static bool isValidPassword(String password) {
-    // Minimum 8 chars, 1 upper, 1 lower, 1 digit or symbol
     final passwordRegex = RegExp(
       r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d!@#\$&*~]).{8,}$',
     );

@@ -1,8 +1,10 @@
-// lib/features/auth/widgets/login_form.dart
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_textfield.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/snackbar_helper.dart';
+import '../../../../core/services/api_services.dart';
+import '../../../../features/auth/models/user_model.dart';
 import 'login_welcome_header.dart';
 
 class LoginForm extends StatefulWidget {
@@ -39,7 +41,6 @@ class _LoginFormState extends State<LoginForm> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    // Validate fields
     if (password.isEmpty || email.isEmpty) {
       widget.onLoginError("All fields are required.");
       return;
@@ -55,23 +56,42 @@ class _LoginFormState extends State<LoginForm> {
     });
 
     try {
-      // Simulate API call - replace with your actual API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // TODO: Replace with actual API call
-      // await AuthService.login(email, password);
-      
+      final result = await ApiService.login(
+        email: email,
+        password: password,
+      );
+
       setState(() {
         isLoading = false;
       });
-      
-      widget.onLoginSuccess();
+
+      if (result['success']) {
+        final userData = result['data'];
+        if (userData != null) {
+          final user = User.fromJson(userData);
+          
+          if (user.role == 'admin') {
+            SnackBarHelper.showError(
+              context, 
+              "Access Denied", 
+              "This app is for clients only. Admin access is not allowed."
+            );
+            
+            await ApiService.removeToken();
+            return;
+          }
+        }
+        
+        widget.onLoginSuccess();
+      } else {
+        widget.onLoginError(result['error'] ?? "Login failed. Please try again.");
+      }
       
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      widget.onLoginError("Invalid credentials. Please try again.");
+      widget.onLoginError("Network error. Please check your connection and try again.");
     }
   }
 
@@ -85,7 +105,6 @@ class _LoginFormState extends State<LoginForm> {
         const LoginWelcomeHeader(),
         const SizedBox(height: 32),
 
-        // Email field
         CustomTextField(
           controller: emailController,
           hintText: "Email",
@@ -98,7 +117,6 @@ class _LoginFormState extends State<LoginForm> {
         ),
         const SizedBox(height: 16),
 
-        // Password field
         CustomTextField(
           controller: passwordController,
           hintText: "Password",
@@ -111,7 +129,6 @@ class _LoginFormState extends State<LoginForm> {
         ),
         const SizedBox(height: 8),
 
-        // Forgot password link
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
@@ -125,7 +142,6 @@ class _LoginFormState extends State<LoginForm> {
 
         const SizedBox(height: 16),
 
-        // Login button
         CustomButton(
           text: isLoading ? "Logging in..." : "Login",
           onPressed: isLoading ? null : _login,
@@ -133,7 +149,6 @@ class _LoginFormState extends State<LoginForm> {
 
         const SizedBox(height: 24),
 
-        // Register link
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

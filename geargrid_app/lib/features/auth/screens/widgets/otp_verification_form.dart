@@ -1,4 +1,3 @@
-// lib/features/auth/widgets/otp_verification_form.dart
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/otp_input_field.dart';
 

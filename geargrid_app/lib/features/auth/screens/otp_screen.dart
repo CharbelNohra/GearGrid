@@ -1,4 +1,3 @@
-// lib/features/auth/screens/otp_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'widgets/auth_header.dart';
@@ -24,7 +23,6 @@ class OTPVerificationScreen extends StatefulWidget {
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   void _onOTPVerified() {
     if (widget.isPasswordReset) {
-      // Navigate to reset password screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -32,7 +30,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         ),
       );
     } else {
-      // Complete registration flow
       _showSuccess('Registration complete!');
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {

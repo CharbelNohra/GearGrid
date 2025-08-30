@@ -1,4 +1,3 @@
-// lib/features/auth/screens/reset_password_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'widgets/reset_password_form.dart';
@@ -18,7 +17,6 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   void _onPasswordReset() {
-    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text("Password reset successfully!"),
@@ -26,7 +24,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       ),
     );
 
-    // Navigate to login page
     context.go('/login');
   }
 
