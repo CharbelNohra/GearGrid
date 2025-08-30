@@ -135,6 +135,48 @@ export async function resetPassword(req, res) {
     res.json({ message: "Password reset successfully" });
 }
 
+// UPDATE PROFILE (only logged-in user can update)
+export async function updateProfile(req, res) {
+    try {
+        const userId = req.user.id; // comes from JWT payload
+        const { fullName, email, password, country, address, phoneNumber } = req.body;
+
+        const user = await User.findOne({ _id: userId });
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        // Update fields if provided
+        if (fullName) user.fullName = fullName;
+        if (email) user.email = email;
+        if (password) user.password = await bcrypt.hash(password, 10);
+        if (country) user.country = country;
+        if (address) user.address = address;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+
+        // Avatar upload
+        if (req.file) {
+            user.avatar = `/uploads/avatars/${req.file.filename}`;
+        }
+
+        await user.save();
+
+        res.json({
+            message: "Profile updated successfully",
+            user: {
+                userId: user.userId,
+                fullName: user.fullName,
+                email: user.email,
+                country: user.country,
+                address: user.address,
+                phoneNumber: user.phoneNumber,
+                avatar: user.avatar,
+                role: user.role
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 export function refreshToken(req, res) {
     const { token } = req.body;
 
