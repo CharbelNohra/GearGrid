@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/utils/snackbar_helper.dart';
 import 'widgets/reset_password_form.dart';
 import 'widgets/auth_header.dart';
 
@@ -17,28 +18,24 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   void _onPasswordReset() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text("Password reset successfully!"),
-        backgroundColor: Colors.green,
-      ),
+    SnackBarHelper.showSuccess(
+      context,
+      "Password Reset Successful",
+      "You can now log in with your new password",
     );
 
     context.go('/login');
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
+    SnackBarHelper.showError(context, "Error", message);
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+    SnackBarHelper.showSuccess(
+      context,
+      "Success",
+      message,
     );
   }
 

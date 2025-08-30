@@ -1,5 +1,6 @@
 // lib/features/auth/screens/forgot_password_screen.dart
 import 'package:flutter/material.dart';
+import 'package:geargrid/core/utils/snackbar_helper.dart';
 import 'package:go_router/go_router.dart';
 import 'widgets/forgot_password_form.dart';
 import 'widgets/auth_header.dart';
@@ -27,17 +28,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
+    SnackBarHelper.showError(context, "Error", message);
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+    SnackBarHelper.showSuccess(
+      context,
+      "Success",
+      message,
     );
   }
 
