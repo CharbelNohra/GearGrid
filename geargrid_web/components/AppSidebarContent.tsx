@@ -12,11 +12,8 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarSeparator,
 } from "./ui/sidebar";
 import {
@@ -34,24 +31,18 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import {
-  ChevronDown,
   ChevronUp,
   Plus,
   Projector,
   User2,
 } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "./ui/collapsible";
 
 const items = [
-  { title: "Home", url: "/", icon: HomeIcon },
-  { title: "Inbox", url: "#", icon: InboxIcon },
-  { title: "Calendar", url: "#", icon: CalendarIcon },
-  { title: "Search", url: "#", icon: SearchIcon },
-  { title: "Settings", url: "#", icon: SettingsIcon },
+  { title: "Dashboard", url: "/dashboard", icon: HomeIcon },
+  { title: "Send Notification", url: "#", icon: InboxIcon },
+  { title: "Add Product", url: "#", icon: CalendarIcon },
+  { title: "View Products", url: "#", icon: SearchIcon },
+  { title: "View Users", url: "#", icon: SettingsIcon },
 ];
 
 const AppSidebarContent = () => {
@@ -71,7 +62,7 @@ const AppSidebarContent = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton className="justify-center" size="lg" asChild>
-              <Link href="/">
+              <Link href="/dashboard">
                 {collapsed ? (
                   <Image src="/assets/svg/launcher_icon.svg" alt="icon" width={100} height={60} />
                 ) : (
@@ -106,107 +97,35 @@ const AppSidebarContent = () => {
                       <span className="font-barlow">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {item.title === "Inbox" && (
-                    <SidebarMenuBadge>24</SidebarMenuBadge>
-                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Projects Section */}
+        {/* Products Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>Products</SidebarGroupLabel>
           <SidebarGroupAction>
-            <Plus /> <span className="sr-only">Add projects</span>
+            <Plus /> <span className="sr-only">Add products</span>
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href={getLink("/projects")}>
+                  <Link href={getLink("/products")}>
                     <Projector />
-                    See All Projects
+                    See All Products
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href={getLink("/projects/add")}>
+                  <Link href={getLink("/products/add")}>
                     <Plus />
-                    Add Project
+                    Add Product
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Collapsible Example */}
-        <Collapsible defaultOpen className="group/collapsible">
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger>
-                Collapsible Group
-                <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href={getLink("/projects")}>
-                        <Projector />
-                        See All Projects
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href={getLink("/projects/add")}>
-                        <Plus />
-                        Add Project
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
-
-        {/* Nested Example */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Nested Items</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href={getLink("/projects")}>
-                    <Projector />
-                    See All Projects
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuButton asChild>
-                      <Link href={getLink("/projects/add")}>
-                        <Plus />
-                        Add Project
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuButton asChild>
-                      <Link href={getLink("/categories/add")}>
-                        <Plus />
-                        Add Category
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

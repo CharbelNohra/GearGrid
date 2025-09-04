@@ -65,7 +65,7 @@ const Navbar = () => {
                                 Settings
                             </DropdownMenuItem>
                             <DropdownMenuItem variant="destructive">
-                                <LogOut className="h-[1.2rem] w-[1.2rem] mr-2" />
+                                <LogOut className="h-[1.2rem] w-[1.2rem] mr-2"/>
                                 Logout
                             </DropdownMenuItem>
                         </DropdownMenuContent>
