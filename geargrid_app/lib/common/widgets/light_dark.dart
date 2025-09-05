@@ -9,16 +9,8 @@ class LightDark extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeProvider = ref.watch(themeModeProvider);
 
-    return SwitchListTile(
-      title: const Text("Dark/Light"),
-      subtitle: Text(
-        themeProvider.themeMode == ThemeMode.dark ? "Dark Mode" : "Light Mode",
-      ),
-      secondary: Icon(
-        themeProvider.themeMode == ThemeMode.dark
-            ? Icons.dark_mode
-            : Icons.light_mode,
-      ),
+    // Return just a Switch widget since it's used as trailing in a ListTile
+    return Switch(
       value: themeProvider.themeMode == ThemeMode.dark,
       onChanged: (value) {
         ref.read(themeModeProvider).toggleTheme(value);

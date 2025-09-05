@@ -1,9 +1,9 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import '../../features/Home/screen/home.dart';
-import '../../features/notifications/screens/notifications_screen.dart';
-import '../../features/settings/screens/settings_screen.dart';
-import '../../features/search/screens/search_screen.dart';
+import 'package:geargrid/features/favorites/favorites_screen.dart';
+import '../../features/Home/home.dart';
+import '../../features/profile/profile_screen.dart';
+import '../../features/search/search_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -20,8 +20,8 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = [
     HomeScreen(),
     SearchScreen(),
-    NotificationsScreen(),
-    SettingsScreen(),
+    FavoritesScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -33,8 +33,8 @@ class _MainLayoutState extends State<MainLayout> {
         items: <Widget>[
           Icon(Icons.home, size: 30, color:Theme.of(context).colorScheme.onPrimary),
           Icon(Icons.search, size: 30, color:Theme.of(context).colorScheme.onPrimary),
-          Icon(Icons.notifications, size: 30, color:Theme.of(context).colorScheme.onPrimary),
-          Icon(Icons.settings, size: 30, color:Theme.of(context).colorScheme.onPrimary),
+          Icon(Icons.favorite, size: 30, color:Theme.of(context).colorScheme.onPrimary),
+          Icon(Icons.person, size: 30, color:Theme.of(context).colorScheme.onPrimary),
         ],
         color: Theme.of(context).colorScheme.primary,
         buttonBackgroundColor: Theme.of(context).colorScheme.primary,
