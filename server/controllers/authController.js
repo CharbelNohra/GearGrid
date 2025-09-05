@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 import { validateRegister } from "../middlewares/validateInput.js";
 import { generateOTP } from "../utils/generateOtp.js";
-import { sendEmail } from "../utils/sendEmail.js";
+import { sendRegistrationOTP } from "../utils/sendEmail.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import { verifyRefreshToken } from "../utils/verifyToken.js";
 
@@ -42,7 +42,7 @@ export async function register(req, res) {
 
         await user.save();
 
-        await sendEmail(email, "Verify your account", `Your OTP code is: ${otp}`);
+        await sendRegistrationOTP(email, otp);
 
         // Optional: return OTP for testing in Postman (remove in production)
         res.status(201).json({ message: "User registered. Please verify with OTP.", otp });
