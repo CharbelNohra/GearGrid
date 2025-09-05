@@ -9,12 +9,16 @@ class OTPVerificationScreen extends StatefulWidget {
   final String email;
   final String? phoneNumber;
   final bool isPasswordReset;
+  final Map<String, String>? registrationData;
+  final VoidCallback? onVerificationComplete;
 
   const OTPVerificationScreen({
     super.key,
     required this.email,
     this.phoneNumber,
     this.isPasswordReset = false,
+    this.registrationData,
+    this.onVerificationComplete,
   });
 
   @override
@@ -32,11 +36,14 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       );
     } else {
       _showSuccess('Registration complete!');
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          context.go('/login');
-        }
-      });
+
+      if (widget.onVerificationComplete != null) {
+        widget.onVerificationComplete!();
+      } else {
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) context.go('/login');
+        });
+      }
     }
   }
 
@@ -45,11 +52,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   }
 
   void _showSuccess(String message) {
-    SnackBarHelper.showSuccess(
-      context,
-      "Success",
-      message,
-    );
+    SnackBarHelper.showSuccess(context, "Success", message);
   }
 
   @override
@@ -70,6 +73,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                 child: OTPVerificationForm(
                   email: widget.email,
                   isPasswordReset: widget.isPasswordReset,
+                  registrationData: widget.registrationData,
                   onOTPVerified: _onOTPVerified,
                   onError: _showError,
                   onSuccess: _showSuccess,

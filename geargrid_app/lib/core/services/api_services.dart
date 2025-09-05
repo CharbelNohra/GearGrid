@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // - For Android emulator: 'http://10.0.2.2:5000'
-  static const String baseUrl = 'http://192.168.1.133:5000/api/auth';
+  static const String baseUrl = 'http://192.168.130.131:5000/api/auth';
 
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
@@ -45,6 +45,10 @@ class ApiService {
     required String phoneNumber,
   }) async {
     try {
+      // print('🚀 Starting registration request...');
+      // print('📧 Email: $email');
+      // print('🌐 URL: $baseUrl/register');
+
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: headers,
@@ -52,14 +56,21 @@ class ApiService {
           'fullName': fullName,
           'email': email,
           'password': password,
+          'confirmPassword': password,
           'country': country,
           'address': address,
           'phoneNumber': phoneNumber,
         }),
       );
 
+      // print('📊 Response Status Code: ${response.statusCode}');
+      // print('📄 Response Body: ${response.body}');
+      // print('🏷️ Response Headers: ${response.headers}');
+
       return _handleResponse(response);
     } catch (e) {
+      // print('❌ Registration Error: $e');
+      // print('🔍 Error Type: ${e.runtimeType}');
       return _handleError(e);
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_textfield.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/utils/validators.dart';
 import 'auth_icon_container.dart';
 
@@ -32,11 +33,19 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    SnackBarHelper.showError(context, "Error", message);
+  }
+
+  void _showSuccess(String message) {
+    SnackBarHelper.showSuccess(context, "Success", message);
+  }
+
   void _sendResetEmail() async {
     final email = emailController.text.trim();
 
     if (!Validators.isValidEmail(email)) {
-      widget.onError("Please enter a valid email address.");
+      _showError("Please enter a valid email address.");
       return;
     }
 
@@ -55,7 +64,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
         isLoading = false;
       });
 
-      widget.onSuccess("Reset code sent to your email!");
+      _showSuccess("Verification code sent to $email");
       
       // Navigate to OTP verification
       widget.onResetEmailSent(email);
@@ -63,7 +72,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
       setState(() {
         isLoading = false;
       });
-      widget.onError("Failed to send reset email. Please try again.");
+      _showError("Failed to send verification code. Please try again.");
     }
   }
 

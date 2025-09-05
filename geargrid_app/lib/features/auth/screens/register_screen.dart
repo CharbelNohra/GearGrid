@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/utils/snackbar_helper.dart';
 import 'widgets/registration_form.dart';
 import '../../../common/widgets/app_logo.dart';
 import 'otp_screen.dart';
@@ -21,18 +22,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (_) => OTPVerificationScreen(
           email: formData['email']!,
           phoneNumber: formData['phone']!,
+          isPasswordReset: false,
+          registrationData: formData,
+          onVerificationComplete: _onRegistrationComplete,
         ),
       ),
     );
   }
 
+  void _onRegistrationComplete() {
+    _showSuccess('Please log in.');
+    Future.delayed(const Duration(seconds: 1), () {
+      context.go('/login');
+    });
+  }
+
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
+    SnackBarHelper.showError(context, "Registration Failed", message);
+  }
+
+  void _showSuccess(String message) {
+    SnackBarHelper.showSuccess(context, "Registration Completed", message);
   }
 
   @override
@@ -61,6 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       key: _formKey,
                       onComplete: _onFormComplete,
                       onError: _showError,
+                      onSuccess: _showSuccess,
                     ),
                     const SizedBox(height: 24),
                     Row(

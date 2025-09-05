@@ -5,6 +5,7 @@ class RegistrationNavigation extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback onPrevious;
   final int totalSteps;
+  final bool isLoading;
 
   const RegistrationNavigation({
     super.key,
@@ -12,6 +13,7 @@ class RegistrationNavigation extends StatelessWidget {
     required this.onNext,
     required this.onPrevious,
     this.totalSteps = 2,
+    this.isLoading = false,
   });
 
   @override
@@ -26,20 +28,43 @@ class RegistrationNavigation extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.arrow_back_ios,
-              color: colors.primary,
+              color:
+                  isLoading
+                      ? colors.outline
+                      : colors.primary,
             ),
-            onPressed: onPrevious,
+            onPressed: isLoading ? null : onPrevious,
           )
         else
           const SizedBox(width: 48),
-        IconButton(
-          icon: Icon(
-            isLastStep ? Icons.check_circle : Icons.arrow_forward_ios,
-            color: colors.primary,
-            size: 28,
-          ),
-          onPressed: onNext,
-        ),
+
+        isLoading
+            ? Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colors.primary.withValues(alpha: 0.1),
+              ),
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                    strokeWidth: 2,
+                  ),
+                ),
+              ),
+            )
+            : IconButton(
+              icon: Icon(
+                isLastStep ? Icons.check_circle : Icons.arrow_forward_ios,
+                color: colors.primary,
+                size: 28,
+              ),
+              onPressed: onNext,
+            ),
       ],
     );
   }
