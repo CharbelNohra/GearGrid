@@ -43,7 +43,7 @@ This is an automated message, please do not reply to this email.
                 </div>
                 
                 <p style="color: #666; font-size: 14px;">
-                    <strong>⏰ This code is valid for 10 minutes and can only be used once.</strong>
+                    <strong>⏰ This code is valid for 3 minutes and can only be used once.</strong>
                 </p>
             </div>
             
@@ -111,7 +111,7 @@ This is an automated message, please do not reply to this email.
                 </div>
                 
                 <p style="color: #666; font-size: 14px;">
-                    <strong>⏰ This code is valid for 10 minutes and can only be used once.</strong>
+                    <strong>⏰ This code is valid for 3 minutes and can only be used once.</strong>
                 </p>
             </div>
             
