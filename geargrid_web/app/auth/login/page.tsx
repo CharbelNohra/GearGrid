@@ -34,44 +34,41 @@ const Login = () => {
     if (error) setError("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      if (formData.email === "" || formData.password === "") {
-        setError("Please fill in all fields.");
+      if (!formData.email || !formData.password) {
+        const msg = "Please fill in all fields.";
+        setError(msg);
+        toast.error(msg);
         return;
       }
 
-      const response = await authService.login(formData.email, formData.password);
+      await authService.login(formData.email, formData.password);
 
       if (!authService.isAdmin()) {
-        setError("Access denied. Admin only.");
+        const msg = "Access denied. Admin only.";
+        setError(msg);
+        toast.error(msg);
         await authService.logout();
         return;
       }
 
       toast.success("Login successful! Welcome back.");
-      await new Promise(resolve => setTimeout(resolve, 3000));
       router.push("/dashboard");
-
     } catch (err: unknown) {
-      let errorMessage = "Login failed. Please try again.";
-
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      }
-
+      const errorMessage =
+        err instanceof Error ? err.message : "Login failed. Please try again.";
       setError(errorMessage);
-      toast?.error(errorMessage);
-
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-
   };
+
 
   return (
     <div className="flex flex-col align-center items-center mt-30">
@@ -83,19 +80,13 @@ const Login = () => {
         <h1 className="text-2xl font-bold mb-2">Welcome back 👋</h1>
         <p className="text-muted-foreground mb-4">Log in as Administrator</p>
 
-        <form className="flex flex-col items-center">
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md w-80 text-sm">
-              {error}
-            </div>
-          )}
-
+        <form className="flex flex-col items-center" onSubmit={handleSubmit}>
           <Input
             type="email"
             name="email"
             placeholder="Email"
             className="mb-4 w-80"
-            required
+            // required
             value={formData.email}
             onChange={handleInputChange}
             disabled={isLoading}
@@ -107,7 +98,7 @@ const Login = () => {
             name="password"
             placeholder="Password"
             className="mb-4 w-80"
-            required
+            // required
             value={formData.password}
             onChange={handleInputChange}
             disabled={isLoading}
@@ -129,7 +120,6 @@ const Login = () => {
           />
 
           <Button
-            onClick={handleSubmit}
             type="submit"
             className="w-80 h-10"
             style={{ borderRadius: "10px" }}

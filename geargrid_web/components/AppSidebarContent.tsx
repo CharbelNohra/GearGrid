@@ -62,7 +62,7 @@ const AppSidebarContent = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton className="justify-center" size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href={getLink("/dashboard")}>
                 {collapsed ? (
                   <Image src="/assets/svg/launcher_icon.svg" alt="icon" width={100} height={60} />
                 ) : (
