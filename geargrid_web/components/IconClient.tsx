@@ -1,9 +1,27 @@
-// components/IconClient.tsx
 "use client";
 import dynamic from "next/dynamic";
 
-export const HomeIcon = dynamic(() => import("lucide-react").then(mod => mod.Home), { ssr: false });
-export const InboxIcon = dynamic(() => import("lucide-react").then(mod => mod.Inbox), { ssr: false });
-export const CalendarIcon = dynamic(() => import("lucide-react").then(mod => mod.Calendar), { ssr: false });
-export const SearchIcon = dynamic(() => import("lucide-react").then(mod => mod.Search), { ssr: false });
-export const SettingsIcon = dynamic(() => import("lucide-react").then(mod => mod.Settings), { ssr: false });
+export const DashboardIcon = dynamic(
+    () => import("lucide-react").then(mod => mod.LayoutDashboard),
+    { ssr: false }
+);
+
+export const NotificationIcon = dynamic(
+    () => import("lucide-react").then(mod => mod.Bell),
+    { ssr: false }
+);
+
+export const AddProductIcon = dynamic(
+    () => import("lucide-react").then(mod => mod.PlusCircle),
+    { ssr: false }
+);
+
+export const ProductsIcon = dynamic(
+    () => import("lucide-react").then(mod => mod.Package),
+    { ssr: false }
+);
+
+export const UsersIcon = dynamic(
+    () => import("lucide-react").then(mod => mod.Users),
+    { ssr: false }
+);

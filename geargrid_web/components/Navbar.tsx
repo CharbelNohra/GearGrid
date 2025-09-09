@@ -1,7 +1,7 @@
-"use client"
-
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,17 +9,23 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
-import { Button } from "./ui/button"
-import { useTheme } from "next-themes"
-import { SidebarTrigger } from "./ui/sidebar"
-import Link from "next/link"
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
+import { useTheme } from "next-themes";
+import { SidebarTrigger } from "./ui/sidebar";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-    const { theme, setTheme } = useTheme()
+    const { theme, setTheme } = useTheme();
+    const router = useRouter();
+    const { user, isAuthenticated, isLoading, logout } = useAuth();
 
-    // TEMP: replace this with real auth check later
-    const isLoggedIn = false;
+    const handleLogout = async () => {
+        await logout();
+        router.push("/auth/login");
+    };
 
     return (
         <nav className="p-4 flex items-center justify-between sticky top-0 bg-background z-10">
@@ -37,51 +43,54 @@ const Navbar = () => {
                             <span className="sr-only">Toggle theme</span>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent sideOffset={10} align="end">
                         <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {isLoggedIn ? (
-                    // USER MENU
+                {/* AUTH SECTION */}
+                {isLoading ? (
+                    // Show loading spinner while auth state is being determined
+                    <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                ) : isAuthenticated && user ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger>
-                            <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" />
-                                <AvatarFallback>CN</AvatarFallback>
+                            <Avatar className="w-12 h-12">
+                                <AvatarImage src={user.avatar || "https://github.com/shadcn.png"} />
+                                <AvatarFallback>{user.fullName?.charAt(0) || "U"}</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent sideOffset={10}>
+                        <DropdownMenuContent sideOffset={10} align="end">
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
-                                <User className="h-[1.2rem] w-[1.2rem] mr-2" />
+                                <User className="mr-2" />
                                 Profile
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <Settings className="h-[1.2rem] w-[1.2rem] mr-2" />
+                                <Settings className="mr-2" />
                                 Settings
                             </DropdownMenuItem>
-                            <DropdownMenuItem variant="destructive">
-                                <LogOut className="h-[1.2rem] w-[1.2rem] mr-2"/>
+                            <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className="mr-2" />
                                 Logout
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ) : (
-                    <div className="flex gap-2">
+                    <>
                         <Link href="/auth/login">
-                            <Button className="shadow-xs" style={{borderRadius: "10px"}}>
+                            <Button className="shadow-xs" style={{ borderRadius: "10px" }}>
                                 Login
                             </Button>
                         </Link>
-                    </div>
+                    </>
                 )}
             </div>
         </nav>
-    )
-}
+    );
+};
 
-export default Navbar
+export default Navbar;

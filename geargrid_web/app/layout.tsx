@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 import { Barlow_Semi_Condensed } from 'next/font/google'
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/AuthContext";
 
 const barlow = Barlow_Semi_Condensed({
   subsets: ['latin'],
@@ -41,12 +42,14 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SidebarProvider defaultOpen={defaultOpen}>
-            <AppSidebar />
-            <main className="w-full">
+            <AuthProvider>
+              <AppSidebar />
+              <main className="w-full">
                 <Navbar />
                 <div className="px-4">{children}</div>
                 <Toaster position="top-right" richColors />
               </main>
+            </AuthProvider>
           </SidebarProvider>
         </ThemeProvider>
       </body>

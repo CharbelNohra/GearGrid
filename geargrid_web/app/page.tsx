@@ -1,22 +1,34 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Login from "./auth/login/page";
-// import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Only redirect after loading is complete and user is authenticated
+    if (!isLoading && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <main className="flex flex-col items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        <p className="mt-4">Loading...</p>
+      </main>
+    );
+  }
 
   return (
-    <main className="flex flex-col items-center justify-center ">
-      <Login />
-      {/* <h1 className="text-4xl font-bold mb-6">Welcome to MyApp</h1>
-      <p className="text-lg text-gray-600 mb-8">Your one-stop e-commerce platform</p>
-      <Button 
-        size="lg"
-        className="rounded-2xl shadow-lg"
-        onClick={() => router.push("/auth/login")}
-      >
-        Get Started
-      </Button> */}
+    <main className="flex flex-col items-center justify-center">
+      {!isAuthenticated && <Login />}
     </main>
   );
 }

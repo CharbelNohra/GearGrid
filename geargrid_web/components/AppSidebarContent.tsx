@@ -17,11 +17,10 @@ import {
   SidebarSeparator,
 } from "./ui/sidebar";
 import {
-  HomeIcon,
-  InboxIcon,
-  CalendarIcon,
-  SearchIcon,
-  SettingsIcon,
+  AddProductIcon,
+  DashboardIcon,
+  NotificationIcon,
+  ProductsIcon,
 } from "./IconClient";
 import Image from "next/image";
 import {
@@ -30,34 +29,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import {
-  ChevronUp,
-  Plus,
-  Projector,
-  User2,
-} from "lucide-react";
+import { ChevronUp, Plus, Projector, User2, LogOut, UsersIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const items = [
-  { title: "Dashboard", url: "/dashboard", icon: HomeIcon },
-  { title: "Send Notification", url: "#", icon: InboxIcon },
-  { title: "Add Product", url: "#", icon: CalendarIcon },
-  { title: "View Products", url: "#", icon: SearchIcon },
-  { title: "View Users", url: "#", icon: SettingsIcon },
+  { title: "Dashboard", url: "/dashboard", icon: DashboardIcon },
+  { title: "Send Notification", url: "#", icon: NotificationIcon },
+  { title: "Add Product", url: "#", icon: AddProductIcon },
+  { title: "View Products", url: "#", icon: ProductsIcon },
+  { title: "View Users", url: "#", icon: UsersIcon },
 ];
 
 const AppSidebarContent = () => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const router = useRouter();
 
-  // 🔐 Mock auth state (replace later with your real JWT/session check)
-  const isLoggedIn = false;
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
-  // Function to handle protected links
-  const getLink = (url: string) => (isLoggedIn ? url : "/auth/login");
+  const handleLogout = async () => {
+    await logout();
+    router.push("/auth/login");
+  };
+
+  const getLink = (url: string) => (isAuthenticated ? url : "/auth/login");
 
   return (
     <Sidebar collapsible="icon">
-      {/* Header / Logo */}
       <SidebarHeader className="py-4">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -66,14 +65,7 @@ const AppSidebarContent = () => {
                 {collapsed ? (
                   <Image src="/assets/svg/launcher_icon.svg" alt="icon" width={100} height={60} />
                 ) : (
-                  <>
-                    <Image
-                      src="/assets/svg/logo.svg"
-                      alt="full logo"
-                      width={100}
-                      height={100}
-                    />
-                  </>
+                  <Image src="/assets/svg/logo.svg" alt="full logo" width={100} height={100} />
                 )}
               </Link>
             </SidebarMenuButton>
@@ -83,7 +75,6 @@ const AppSidebarContent = () => {
 
       <SidebarSeparator />
 
-      {/* Main Sidebar Content */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -103,7 +94,6 @@ const AppSidebarContent = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Products Section */}
         <SidebarGroup>
           <SidebarGroupLabel>Products</SidebarGroupLabel>
           <SidebarGroupAction>
@@ -132,30 +122,37 @@ const AppSidebarContent = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer (User section) */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            {isLoggedIn ? (
+            {isLoading ? (
+              <SidebarMenuButton disabled>
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Loading...
+              </SidebarMenuButton>
+            ) : isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
                     <User2 />
-                    John Doe
+                    {user.fullName}
                     <ChevronUp className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>Account</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem>Sign out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut />
+                    Sign out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <SidebarMenuButton asChild>
                 <Link href="/auth/login">
                   <User2 />
-                  User Name
+                  Login
                 </Link>
               </SidebarMenuButton>
             )}
