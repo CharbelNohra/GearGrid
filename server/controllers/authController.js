@@ -37,7 +37,7 @@ export async function register(req, res) {
             phoneNumber: normalizedPhone,
             otp,
             otpExpires: Date.now() + 3 * 60 * 1000,
-            role: "client"
+            role: role || "client"
         });
 
         await user.save();
