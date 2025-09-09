@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 import { Barlow_Semi_Condensed } from 'next/font/google'
+import { Toaster } from "sonner";
 
 const barlow = Barlow_Semi_Condensed({
   subsets: ['latin'],
@@ -44,6 +45,7 @@ export default async function RootLayout({
             <main className="w-full">
                 <Navbar />
                 <div className="px-4">{children}</div>
+                <Toaster position="top-right" richColors />
               </main>
           </SidebarProvider>
         </ThemeProvider>

@@ -1,15 +1,11 @@
-import { authService, User, LoginResponse, UpdateProfileData } from '@/services/authService';
+import { authService, User, LoginResponse, UpdateProfileData, UpdateProfileResponse } from '@/services/authService';
 
 export const loginUser = (email: string, password: string): Promise<LoginResponse> => {
     return authService.login(email, password);
 };
 
-export const updateProfile = (profileData: UpdateProfileData): Promise<any> => {
-    return authService.updateProfile(profileData);
-};
-
-export const updateProfileWithAvatar = (profileData: UpdateProfileData, avatarFile?: File): Promise<any> => {
-    return authService.updateProfileWithAvatar(profileData, avatarFile);
+export const updateProfile = (profileData: UpdateProfileData, avatarFile?: File): Promise<UpdateProfileResponse> => {
+    return authService.updateProfile(profileData, avatarFile);
 };
 
 export const logoutUser = (): Promise<void> => {
@@ -32,4 +28,4 @@ export const isAdmin = (): boolean => {
     return authService.isAdmin();
 };
 
-export type { User, LoginResponse, UpdateProfileData };
+export type { User, LoginResponse, UpdateProfileData, UpdateProfileResponse };

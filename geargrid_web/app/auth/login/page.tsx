@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState } from "react";
@@ -30,7 +31,6 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (error) setError("");
   };
 
@@ -40,24 +40,37 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await authService.login(formData.email, formData.password);
-      
-      if (!authService.isAdmin()) {
-        setError("Access denied. Admin only.");
-        await authService.logout(); // Clear any stored data
+      if (formData.email === "" || formData.password === "") {
+        setError("Please fill in all fields.");
         return;
       }
 
-      toast?.success("Login successful! Welcome back.");
+      const response = await authService.login(formData.email, formData.password);
+
+      if (!authService.isAdmin()) {
+        setError("Access denied. Admin only.");
+        await authService.logout();
+        return;
+      }
+
+      toast.success("Login successful! Welcome back.");
+      await new Promise(resolve => setTimeout(resolve, 3000));
       router.push("/dashboard");
-      
-    } catch (err: any) {
-      const errorMessage = err.message || "Login failed. Please try again.";
+
+    } catch (err: unknown) {
+      let errorMessage = "Login failed. Please try again.";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
       setError(errorMessage);
       toast?.error(errorMessage);
+
     } finally {
       setIsLoading(false);
     }
+
   };
 
   return (
@@ -70,7 +83,7 @@ const Login = () => {
         <h1 className="text-2xl font-bold mb-2">Welcome back 👋</h1>
         <p className="text-muted-foreground mb-4">Log in as Administrator</p>
 
-        <form className="flex flex-col items-center" onSubmit={handleSubmit}>
+        <form className="flex flex-col items-center">
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md w-80 text-sm">
               {error}
@@ -116,6 +129,7 @@ const Login = () => {
           />
 
           <Button
+            onClick={handleSubmit}
             type="submit"
             className="w-80 h-10"
             style={{ borderRadius: "10px" }}

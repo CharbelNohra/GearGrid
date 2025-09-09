@@ -26,27 +26,32 @@ export interface UpdateProfileData {
     phoneNumber?: string;
 }
 
+export interface UpdateProfileResponse {
+    success?: boolean;
+    message?: string;
+    user: User;
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
 
 class AuthService {
-    // Login method
+    // -----------------------
+    // Login
+    // -----------------------
     async login(email: string, password: string): Promise<LoginResponse> {
         try {
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
+            const data: LoginResponse = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Login failed');
+                throw new Error(data.message || 'Login failed');
             }
 
-            // Store tokens and user data
             if (typeof window !== 'undefined') {
                 localStorage.setItem('accessToken', data.accessToken);
                 localStorage.setItem('refreshToken', data.refreshToken);
@@ -54,109 +59,80 @@ class AuthService {
             }
 
             return data;
-        } catch (error) {
-            throw error;
+        } catch (error: unknown) {
+            if (error instanceof Error) throw error;
+            throw new Error('Unknown error occurred during login');
         }
     }
 
-    // Update profile method
-    async updateProfile(profileData: UpdateProfileData): Promise<any> {
+    // -----------------------
+    // Update profile (with optional avatar)
+    // -----------------------
+    async updateProfile(profileData: UpdateProfileData, avatarFile?: File): Promise<UpdateProfileResponse> {
         try {
             const token = this.getAuthToken();
+            if (!token) throw new Error('Not authenticated');
 
-            const response = await fetch(`${API_BASE_URL}/auth/updateProfile`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(profileData),
-            });
+            let body: BodyInit;
+            const headers: Record<string, string> = { 'Authorization': `Bearer ${token}` };
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Profile update failed');
-            }
-
-            // Update stored user data
-            if (data.user && typeof window !== 'undefined') {
-                localStorage.setItem('user', JSON.stringify(data.user));
-            }
-
-            return data;
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    // Update profile with avatar method
-    async updateProfileWithAvatar(profileData: UpdateProfileData, avatarFile?: File): Promise<any> {
-        try {
-            const token = this.getAuthToken();
-            const formData = new FormData();
-
-            // Append profile data
-            Object.entries(profileData).forEach(([key, value]) => {
-                if (value !== undefined && value !== '') {
-                    formData.append(key, value);
-                }
-            });
-
-            // Append avatar file if provided
             if (avatarFile) {
+                const formData = new FormData();
+                Object.entries(profileData).forEach(([key, value]) => {
+                    if (value !== undefined && value !== '') formData.append(key, value);
+                });
                 formData.append('avatar', avatarFile);
+                body = formData;
+                // Don't set Content-Type for FormData, browser handles it
+            } else {
+                headers['Content-Type'] = 'application/json';
+                body = JSON.stringify(profileData);
             }
 
             const response = await fetch(`${API_BASE_URL}/auth/updateProfile`, {
                 method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    // Don't set Content-Type for FormData - browser will set it with boundary
-                },
-                body: formData,
+                headers,
+                body,
             });
 
-            const data = await response.json();
+            const data: UpdateProfileResponse = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Profile update failed');
-            }
+            if (!response.ok) throw new Error(data.message || 'Profile update failed');
 
-            // Update stored user data
             if (data.user && typeof window !== 'undefined') {
                 localStorage.setItem('user', JSON.stringify(data.user));
             }
 
             return data;
-        } catch (error) {
-            throw error;
+        } catch (error: unknown) {
+            if (error instanceof Error) throw error;
+            throw new Error('Unknown error occurred during profile update');
         }
     }
 
-    // Logout method
+    // -----------------------
+    // Logout
+    // -----------------------
     async logout(): Promise<void> {
         try {
             const refreshToken = this.getRefreshToken();
-
             if (refreshToken) {
                 await fetch(`${API_BASE_URL}/auth/logout`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: refreshToken }),
                 });
             }
         } catch (error) {
             console.error('Logout API call failed:', error);
         } finally {
-            // Always clear local storage
             this.clearAuthData();
         }
     }
 
-    // Utility methods
+    // -----------------------
+    // Utilities
+    // -----------------------
     getCurrentUser(): User | null {
         if (typeof window !== 'undefined') {
             const user = localStorage.getItem('user');
@@ -167,23 +143,18 @@ class AuthService {
 
     isAuthenticated(): boolean {
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('accessToken');
-            return !!token;
+            return !!localStorage.getItem('accessToken');
         }
         return false;
     }
 
     getAuthToken(): string | null {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('accessToken');
-        }
+        if (typeof window !== 'undefined') return localStorage.getItem('accessToken');
         return null;
     }
 
     getRefreshToken(): string | null {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('refreshToken');
-        }
+        if (typeof window !== 'undefined') return localStorage.getItem('refreshToken');
         return null;
     }
 
@@ -195,12 +166,9 @@ class AuthService {
         }
     }
 
-    // Check if user is admin
     isAdmin(): boolean {
-        const user = this.getCurrentUser();
-        return user?.role === 'admin';
+        return this.getCurrentUser()?.role === 'admin';
     }
 }
 
-// Export singleton instance
 export const authService = new AuthService();
