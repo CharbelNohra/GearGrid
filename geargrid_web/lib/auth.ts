@@ -1,7 +1,12 @@
 import { authService, User, LoginResponse, UpdateProfileData, UpdateProfileResponse } from '@/services/authService';
 
-export const loginUser = (email: string, password: string): Promise<LoginResponse> => {
-    return authService.login(email, password);
+export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
+    try {
+        const response = await authService.login(email, password);
+        return response;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const updateProfile = (profileData: UpdateProfileData, avatarFile?: File): Promise<UpdateProfileResponse> => {
@@ -13,11 +18,13 @@ export const logoutUser = (): Promise<void> => {
 };
 
 export const getCurrentUser = (): User | null => {
-    return authService.getCurrentUser();
+    const user = authService.getCurrentUser();
+    return user;
 };
 
 export const isAuthenticated = (): boolean => {
-    return authService.isAuthenticated();
+    const authenticated = authService.isAuthenticated();
+    return authenticated;
 };
 
 export const getAuthToken = (): string | null => {

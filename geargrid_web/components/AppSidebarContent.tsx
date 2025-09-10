@@ -103,7 +103,7 @@ const AppSidebarContent = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href={getLink("/products")}>
+                  <Link href={getLink("#")}>
                     <Projector />
                     See All Products
                   </Link>
@@ -111,7 +111,7 @@ const AppSidebarContent = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href={getLink("/products/add")}>
+                  <Link href={getLink("#")}>
                     <Plus />
                     Add Product
                   </Link>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState } from "react";
@@ -7,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { authService } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { authService } from "@/services/authService";
 
 interface LoginFormData {
   email: string;
@@ -17,13 +17,14 @@ interface LoginFormData {
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: ""
   });
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const { login, isLoading } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,7 +37,6 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
 
     try {
@@ -47,7 +47,7 @@ const Login = () => {
         return;
       }
 
-      await authService.login(formData.email, formData.password);
+      await login(formData.email, formData.password);
 
       if (!authService.isAdmin()) {
         const msg = "Access denied. Admin only.";
@@ -64,11 +64,8 @@ const Login = () => {
         err instanceof Error ? err.message : "Login failed. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
-
 
   return (
     <div className="flex flex-col align-center items-center mt-30">
@@ -86,7 +83,6 @@ const Login = () => {
             name="email"
             placeholder="Email"
             className="mb-4 w-80"
-            // required
             value={formData.email}
             onChange={handleInputChange}
             disabled={isLoading}
@@ -98,7 +94,6 @@ const Login = () => {
             name="password"
             placeholder="Password"
             className="mb-4 w-80"
-            // required
             value={formData.password}
             onChange={handleInputChange}
             disabled={isLoading}

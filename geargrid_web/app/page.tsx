@@ -10,13 +10,11 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Only redirect after loading is complete and user is authenticated
     if (!isLoading && isAuthenticated) {
       router.replace("/dashboard");
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <main className="flex flex-col items-center justify-center min-h-screen">
