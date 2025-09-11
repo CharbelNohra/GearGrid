@@ -138,7 +138,7 @@ export async function resetPassword(req, res) {
 // UPDATE PROFILE (only logged-in user can update)
 export async function updateProfile(req, res) {
     try {
-        const userId = req.user.id; // comes from JWT payload
+        const userId = req.user.userId;
         const { fullName, email, password, country, address, phoneNumber } = req.body;
 
         const user = await User.findOne({ _id: userId });
@@ -187,7 +187,7 @@ export function refreshToken(req, res) {
     if (!payload) return res.status(403).json({ message: "Invalid or expired refresh token" });
 
     // Generate new tokens
-    const user = { _id: payload.id, email: payload.email };
+    const user = { _id: payload.userId, email: payload.email };
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
