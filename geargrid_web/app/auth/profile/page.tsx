@@ -17,7 +17,14 @@ import {
   FiEyeOff,
 } from "react-icons/fi"
 import { CiMail } from "react-icons/ci"
-import { countryPhoneData } from "@/constants/countries" // <-- your key-value object
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { countryPhoneData } from "@/constants/countries"
 
 const Profile = () => {
   const [user, setUser] = useState({
@@ -28,7 +35,7 @@ const Profile = () => {
     country: "Lebanon",
     countryCode: "+961",
     phone: "98765432",
-    password: "123456", // dummy current password
+    password: "123456",
     avatar: "https://github.com/shadcn.png",
   })
 
@@ -43,30 +50,37 @@ const Profile = () => {
   const [showOldPassword, setShowOldPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
 
-  // Get selected country info
+  // Selected country info
   const selectedCountry = countryPhoneData[formData.country]
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement> | string
   ) => {
-    const { name, value } = e.target
-
-    if (name === "country") {
-      const country = countryPhoneData[value]
+    if (typeof e === "string") {
+      // country selected
+      const country = countryPhoneData[e]
       if (country) {
         setFormData((prev) => ({
           ...prev,
-          country: value,
+          country: e,
           countryCode: country.code,
           phone: "",
         }))
       }
-    } else if (name === "phone") {
-      if (selectedCountry && value.length <= selectedCountry.length) {
-        setFormData((prev) => ({ ...prev, phone: value.replace(/\D/g, "") }))
-      }
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }))
+      const { name, value } = e.target
+
+      if (name === "phone") {
+        if (selectedCountry) {
+          const digitsOnly = value.replace(/\D/g, "")
+          const truncated = digitsOnly.slice(0, selectedCountry.length)
+          setFormData((prev) => ({ ...prev, phone: truncated }))
+        } else {
+          setFormData((prev) => ({ ...prev, phone: value.replace(/\D/g, "") }))
+        }
+      } else {
+        setFormData((prev) => ({ ...prev, [name]: value }))
+      }
     }
   }
 
@@ -109,7 +123,7 @@ const Profile = () => {
 
     if (formData.oldPassword || formData.newPassword) {
       if (formData.oldPassword !== user.password) {
-        alert("Old password is incorrect. Cannot update profile.")
+        alert("Old password is incorrect.")
         setFormData((prev) => ({ ...prev, oldPassword: "", newPassword: "" }))
         setShowOldPassword(false)
         setShowNewPassword(false)
@@ -212,19 +226,22 @@ const Profile = () => {
               prefix={<FiMapPin className="h-4 w-4 text-muted-foreground" />}
             />
 
-            <select
-              name="country"
+            <Select
               value={formData.country}
-              onChange={handleChange}
+              onValueChange={handleChange}
               disabled={!isEditing}
-              className="border rounded px-2 py-2 flex-1"
             >
-              {Object.keys(countryPhoneData).map((country) => (
-                <option key={country} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(countryPhoneData).map((country) => (
+                  <SelectItem key={country} value={country}>
+                    {country}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex gap-2 items-center">
