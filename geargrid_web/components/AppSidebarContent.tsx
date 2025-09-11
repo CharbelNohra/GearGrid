@@ -29,7 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { ChevronUp, Plus, Projector, User2, LogOut, UsersIcon } from "lucide-react";
+import { ChevronUp, Plus, Projector, User2, LogOut, UsersIcon, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -140,10 +140,12 @@ const AppSidebarContent = () => {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Account</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/auth/profile")}>
+                    <User className="mr-2" />
+                    Profile
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut />
+                    <LogOut className="mr-2" />
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>

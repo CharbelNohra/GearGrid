@@ -66,13 +66,9 @@ const Navbar = () => {
                         <DropdownMenuContent sideOffset={10} align="end">
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push("/auth/profile")}>
                                 <User className="mr-2" />
                                 Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Settings className="mr-2" />
-                                Settings
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleLogout}>
                                 <LogOut className="mr-2" />
