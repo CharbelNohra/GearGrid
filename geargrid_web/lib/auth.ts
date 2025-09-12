@@ -9,6 +9,10 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     }
 };
 
+export const getProfile = (): Promise<User> => {
+    return authService.getProfile();
+};
+
 export const updateProfile = (profileData: UpdateProfileData, avatarFile?: File): Promise<UpdateProfileResponse> => {
     return authService.updateProfile(profileData, avatarFile);
 };

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { LogOut, Moon, Sun, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
     DropdownMenu,
@@ -58,7 +58,7 @@ const Navbar = () => {
                 ) : isAuthenticated && user ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger>
-                            <Avatar className="w-8 h-8">
+                            <Avatar className="w-8 h-8 border-1 border-secondary">
                                 <AvatarImage src={user.avatar || "https://github.com/shadcn.png"} />
                                 <AvatarFallback>{user.fullName?.charAt(0) || "U"}</AvatarFallback>
                             </Avatar>

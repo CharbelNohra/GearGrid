@@ -62,6 +62,25 @@ class AuthService {
         }
     }
 
+    async getProfile(): Promise<User> {
+        const token = localStorage.getItem("accessToken");
+        if (!token) throw new Error("No access token");
+
+        const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            console.error("Profile fetch failed:", data);
+            throw new Error(data.error || "Failed to fetch profile");
+        }
+
+        const data = await res.json();
+        return data.user;
+    }
+
     async updateProfile(profileData: UpdateProfileData, avatarFile?: File): Promise<UpdateProfileResponse> {
         try {
             const token = this.getAuthToken();
@@ -82,7 +101,7 @@ class AuthService {
                 body = JSON.stringify(profileData);
             }
 
-            const response = await fetch(`${API_BASE_URL}/auth/updateProfile`, {
+            const response = await fetch(`${API_BASE_URL}/auth/update-profile`, {
                 method: 'PUT',
                 headers,
                 body,
