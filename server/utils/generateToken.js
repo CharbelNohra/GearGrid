@@ -9,9 +9,9 @@ export function generateAccessToken(user) {
         throw new Error("JWT_SECRET is not defined in environment variables");
     }
     return jwt.sign(
-        { id: user._id, email: user.email },
+        { id: user.userId, email: user.email },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION || "15m" }
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION || "2d" }
     );
 }
 
@@ -24,7 +24,7 @@ export function generateRefreshToken(user) {
         throw new Error("JWT_REFRESH_SECRET is not defined in environment variables");
     }
     return jwt.sign(
-        { id: user._id, email: user.email },
+        { id: user.userId, email: user.email },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION || "7d" }
     );

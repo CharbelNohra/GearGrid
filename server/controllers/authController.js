@@ -15,7 +15,7 @@ export async function register(req, res) {
         const errors = validateRegister(req.body);
         if (errors.length > 0) return res.status(400).json({ errors });
 
-        const { fullName, email, password, confirmPassword, country, address, phoneNumber} = req.body;
+        const { fullName, email, password, confirmPassword, country, address, phoneNumber } = req.body;
 
         if (password !== confirmPassword) {
             return res.status(400).json({ error: "Password and confirm password do not match" });
@@ -135,16 +135,35 @@ export async function resetPassword(req, res) {
     res.json({ message: "Password reset successfully" });
 }
 
-// UPDATE PROFILE (only logged-in user can update)
-export async function updateProfile(req, res) {
+// GET PROFILE
+export async function getProfile(req, res) {
     try {
-        const userId = req.user.userId;
-        const { fullName, email, password, country, address, phoneNumber } = req.body;
-
-        const user = await User.findOne({ _id: userId });
+        const user = await User.findOne({ userId: req.user.id });
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        // Update fields if provided
+        res.json({
+            user: {
+                userId: user.userId,
+                fullName: user.fullName,
+                email: user.email,
+                country: user.country || "",
+                address: user.address || "",
+                phoneNumber: user.phoneNumber || "",
+                avatar: user.avatar || "",
+                role: user.role,
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export async function updateProfile(req, res) {
+    try {
+        const user = await User.findOne({ userId: req.user.id });
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const { fullName, email, password, country, address, phoneNumber } = req.body;
         if (fullName) user.fullName = fullName;
         if (email) user.email = email;
         if (password) user.password = await bcrypt.hash(password, 10);
@@ -152,9 +171,8 @@ export async function updateProfile(req, res) {
         if (address) user.address = address;
         if (phoneNumber) user.phoneNumber = phoneNumber;
 
-        // Avatar upload
         if (req.file) {
-            user.avatar = `/uploads/avatars/${req.file.filename}`;
+            user.avatar = `${req.protocol}://${req.get("host")}/uploads/avatars/${req.file.filename}`;
         }
 
         await user.save();
@@ -177,6 +195,7 @@ export async function updateProfile(req, res) {
     }
 }
 
+
 export function refreshToken(req, res) {
     const { token } = req.body;
 
@@ -187,7 +206,7 @@ export function refreshToken(req, res) {
     if (!payload) return res.status(403).json({ message: "Invalid or expired refresh token" });
 
     // Generate new tokens
-    const user = { _id: payload.userId, email: payload.email };
+    const user = { _id: payload.id, email: payload.email };
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
