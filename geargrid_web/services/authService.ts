@@ -20,7 +20,8 @@ export interface LoginResponse {
 export interface UpdateProfileData {
     fullName?: string;
     email?: string;
-    password?: string;
+    oldPassword?: string;
+    newPassword?: string;
     country?: string;
     address?: string;
     phoneNumber?: string;

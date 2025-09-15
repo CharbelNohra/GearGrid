@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         refreshAuth,
-        setUser, // <-- add this
+        setUser,
       }}
     >
       {children}

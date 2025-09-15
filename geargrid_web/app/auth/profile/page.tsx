@@ -12,6 +12,7 @@ import { countryPhoneData } from "@/constants/countries"
 import { UpdateProfileData } from "@/services/authService"
 import { getProfile, updateProfile } from "@/lib/auth"
 import { useAuth } from "@/context/AuthContext"
+import { toast } from "sonner";
 
 interface ProfileFormData {
   fullName: string
@@ -163,17 +164,17 @@ const Profile = () => {
     }
 
     if (selectedCountry && formData.phone.length !== selectedCountry.length) {
-      alert(`Phone number must be exactly ${selectedCountry.length} digits.`)
+      toast.error(`Phone number must be exactly ${selectedCountry.length} digits.`)
       return
     }
 
     if ((formData.oldPassword || formData.newPassword) && !formData.oldPassword) {
-      alert("Please enter your current password to change it.")
+      toast.error("Please enter your current password to change it.")
       return
     }
 
     if (formData.newPassword && formData.newPassword.length < 6) {
-      alert("New password must be at least 6 characters long.")
+      toast.error("New password must be at least 6 characters long.")
       return
     }
 
@@ -188,7 +189,8 @@ const Profile = () => {
       }
 
       if (formData.newPassword.trim()) {
-        updateData.password = formData.newPassword
+        updateData.oldPassword = formData.oldPassword;
+        updateData.newPassword = formData.newPassword;
       }
 
       await updateProfile(updateData, avatarFile || undefined)
@@ -213,10 +215,10 @@ const Profile = () => {
       setShowOldPassword(false)
       setShowNewPassword(false)
 
-      alert("Profile updated successfully!")
+      toast.success("Profile updated successfully!")
     } catch (error) {
       console.error(error)
-      alert(error instanceof Error ? error.message : "Failed to update profile.")
+      toast.error(error instanceof Error ? error.message : "Failed to update profile.")
     } finally {
       setIsLoading(false)
     }
@@ -250,7 +252,7 @@ const Profile = () => {
         <form className="flex flex-col gap-4 w-[22rem]" onSubmit={(e) => e.preventDefault()}>
           <Input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleInputChange} disabled={!isEditing} prefix={<FiUser className="h-5 w-5 text-muted-foreground" />} />
           <Input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} disabled={!isEditing} prefix={<CiMail className="h-5 w-5 text-muted-foreground" />} />
-          
+
           <div className="flex gap-2">
             <Input type="text" name="address" placeholder="Address" value={formData.address} onChange={handleInputChange} disabled={!isEditing} prefix={<FiMapPin className="h-4 w-4 text-muted-foreground" />} />
             <Select value={formData.country} onValueChange={handleSelectChange} disabled={!isEditing}>
@@ -276,7 +278,7 @@ const Profile = () => {
           {isEditing && (
             <div className="flex gap-2">
               <Input type={showOldPassword ? "text" : "password"} name="oldPassword" placeholder="Current Password" value={formData.oldPassword} onChange={handleInputChange} prefix={<FiLock className="h-4 w-4 text-muted-foreground" />} suffix={<button type="button" onClick={() => setShowOldPassword((prev) => !prev)} className="flex items-center">{showOldPassword ? <FiEyeOff /> : <FiEye />}</button>} />
-              
+
               <Input type={showNewPassword ? "text" : "password"} name="newPassword" placeholder="New Password" value={formData.newPassword} onChange={handleInputChange} prefix={<FiLock className="h-4 w-4 text-muted-foreground" />} suffix={<button type="button" onClick={() => setShowNewPassword((prev) => !prev)} className="flex items-center">{showNewPassword ? <FiEyeOff /> : <FiEye />}</button>} />
             </div>
           )}
