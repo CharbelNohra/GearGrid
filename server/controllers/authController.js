@@ -163,13 +163,18 @@ export async function updateProfile(req, res) {
         const user = await User.findOne({ userId: req.user.id });
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        const { fullName, email, password, country, address, phoneNumber } = req.body;
+        const { fullName, email, newPassword, oldPassword, country, address, phoneNumber } = req.body;
         if (fullName) user.fullName = fullName;
         if (email) user.email = email;
-        if (password) user.password = await bcrypt.hash(password, 10);
+        if (oldPassword) {
+            const validPassword = await bcrypt.compare(oldPassword, user.password);
+            if (!validPassword) return res.status(400).json({ error: "Invalid old password" });
+        }
+        if (newPassword) user.password = await bcrypt.hash(newPassword, 10);
         if (country) user.country = country;
         if (address) user.address = address;
         if (phoneNumber) user.phoneNumber = phoneNumber;
+
 
         if (req.file) {
             user.avatar = `${req.protocol}://${req.get("host")}/uploads/avatars/${req.file.filename}`;
