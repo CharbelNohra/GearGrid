@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../common/widgets/dropdown_list.dart';
 import '../../../../common/widgets/custom_phonefield.dart';
 import '../../../../common/widgets/custom_textfield.dart';
-import '../../../../core/constants/countries.dart';
 import '../../../../core/constants/countries_phone_code.dart';
 import 'step_header.dart';
 
@@ -20,6 +19,12 @@ class RegistrationStepTwo extends StatelessWidget {
     required this.onCountryChanged,
   });
 
+  String? _getCountryCode(String? country) {
+    if (country == null) return null;
+    final countryData = countryPhoneData[country];
+    return countryData?['code'] as String?;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -28,22 +33,18 @@ class RegistrationStepTwo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const StepHeader(
-          currentStep: 2,
-          totalSteps: 2,
-        ),
+        const StepHeader(currentStep: 2, totalSteps: 2),
         const SizedBox(height: 16),
         CustomDropdownField<String>(
           value: selectedCountry,
           hintText: "Select your country",
-          items: countries
-              .map(
-                (country) => DropdownMenuItem(
-                  value: country,
-                  child: Text(country),
-                ),
-              )
-              .toList(),
+          items:
+              countryPhoneData.keys
+                  .map(
+                    (country) =>
+                        DropdownMenuItem(value: country, child: Text(country)),
+                  )
+                  .toList(),
           onChanged: onCountryChanged,
         ),
         const SizedBox(height: 16),
@@ -60,9 +61,7 @@ class RegistrationStepTwo extends StatelessWidget {
         CustomPhoneField(
           controller: phoneController,
           hintText: "Enter phone number",
-          countryCode: selectedCountry != null
-              ? countryPhoneCodes[selectedCountry!]
-              : null,
+          countryCode: _getCountryCode(selectedCountry),
           onCountryTap: () {
             // Optional: You can add logic to open country selector here
           },

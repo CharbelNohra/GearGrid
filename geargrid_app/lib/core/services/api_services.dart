@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // - For Android emulator: 'http://10.0.2.2:5000'
-  static const String baseUrl = 'http://192.168.130.131:5000/api/auth';
+  static const String baseUrl = 'http://192.168.10.234:5000/api/auth';
 
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
@@ -45,10 +45,6 @@ class ApiService {
     required String phoneNumber,
   }) async {
     try {
-      // print('🚀 Starting registration request...');
-      // print('📧 Email: $email');
-      // print('🌐 URL: $baseUrl/register');
-
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: headers,
@@ -62,15 +58,8 @@ class ApiService {
           'phoneNumber': phoneNumber,
         }),
       );
-
-      // print('📊 Response Status Code: ${response.statusCode}');
-      // print('📄 Response Body: ${response.body}');
-      // print('🏷️ Response Headers: ${response.headers}');
-
       return _handleResponse(response);
     } catch (e) {
-      // print('❌ Registration Error: $e');
-      // print('🔍 Error Type: ${e.runtimeType}');
       return _handleError(e);
     }
   }
@@ -88,8 +77,8 @@ class ApiService {
 
       final result = _handleResponse(response);
 
-      if (result['success'] == true && result['data']?['token'] != null) {
-        await saveToken(result['data']['token']);
+      if (result['success'] == true && result['data']?['accessToken'] != null) {
+        await saveToken(result['data']['accessToken']);
       }
 
       return result;
@@ -111,8 +100,8 @@ class ApiService {
 
       final result = _handleResponse(response);
 
-      if (result['success'] == true && result['data']?['token'] != null) {
-        await saveToken(result['data']['token']);
+      if (result['success'] == true && result['data']?['accessToken'] != null) {
+        await saveToken(result['data']['accessToken']);
       }
 
       return result;
@@ -159,24 +148,47 @@ class ApiService {
     }
   }
 
+  // NEW: Get user profile
+  static Future<Map<String, dynamic>> getProfile() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/profile'),
+        headers: await authHeaders,
+      );
+
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
+  // FIXED: Update profile to match backend route
   static Future<Map<String, dynamic>> updateProfile({
     String? fullName,
+    String? email,
     String? phoneNumber,
     String? country,
     String? address,
+    String? oldPassword,
+    String? newPassword,
     File? avatarFile,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl/profile');
+      final uri = Uri.parse('$baseUrl/update-profile'); // Changed from /profile to /update-profile
       final request = http.MultipartRequest('PUT', uri);
 
       final authHeadersMap = await authHeaders;
+      // Remove Content-Type for multipart requests
+      authHeadersMap.remove('Content-Type');
       request.headers.addAll(authHeadersMap);
 
       if (fullName != null) request.fields['fullName'] = fullName;
+      if (email != null) request.fields['email'] = email;
       if (phoneNumber != null) request.fields['phoneNumber'] = phoneNumber;
       if (country != null) request.fields['country'] = country;
       if (address != null) request.fields['address'] = address;
+      if (oldPassword != null) request.fields['oldPassword'] = oldPassword;
+      if (newPassword != null) request.fields['newPassword'] = newPassword;
 
       if (avatarFile != null) {
         request.files.add(

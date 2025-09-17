@@ -27,27 +27,51 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Initialize - Check if user is already logged in
+  // Initialize - Check if user is already logged in and fetch profile
   Future<void> initialize() async {
     _setLoading(true);
     try {
       if (await ApiService.isAuthenticated()) {
-        // You might want to fetch user profile here
-        // For now, we'll just mark as authenticated
-        _setUser(
-          User(
-            id: 'temp',
-            userId: 'temp',
-            fullName: 'User',
-            email: 'user@email.com',
-            country: '',
-            address: '',
-            phoneNumber: '',
-          ),
-        );
+        // Fetch user profile from backend
+        final result = await ApiService.getProfile();
+        if (result['success']) {
+          final userData = result['data']['user'];
+          _setUser(User.fromJson(userData));
+        } else {
+          // If profile fetch fails, clear token and set user to null
+          await ApiService.removeToken();
+          _setUser(null);
+        }
       }
     } catch (e) {
       _setError(e.toString());
+      // If error occurs, clear token and set user to null
+      await ApiService.removeToken();
+      _setUser(null);
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Get current user profile
+  Future<bool> getProfile() async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      final result = await ApiService.getProfile();
+
+      if (result['success']) {
+        final userData = result['data']['user'];
+        _setUser(User.fromJson(userData));
+        return true;
+      } else {
+        _setError(result['error']);
+        return false;
+      }
+    } catch (e) {
+      _setError('Failed to get profile: ${e.toString()}');
+      return false;
     } finally {
       _setLoading(false);
     }
@@ -98,11 +122,8 @@ class AuthController extends ChangeNotifier {
       final result = await ApiService.verifyOTP(email: email, otp: otp);
 
       if (result['success']) {
-        // Create user object from response
-        final userData = result['data'];
-        if (userData != null) {
-          _setUser(User.fromJson(userData));
-        }
+        // After successful OTP verification, get user profile
+        await getProfile();
         return true;
       } else {
         _setError(result['error']);
@@ -125,8 +146,8 @@ class AuthController extends ChangeNotifier {
       final result = await ApiService.login(email: email, password: password);
 
       if (result['success']) {
-        // Create user object from response
-        final userData = result['data'];
+        // Create user object from login response
+        final userData = result['data']['user'];
         if (userData != null) {
           _setUser(User.fromJson(userData));
         }
@@ -198,9 +219,12 @@ class AuthController extends ChangeNotifier {
   // Update user profile
   Future<bool> updateProfile({
     String? fullName,
+    String? email,
     String? phoneNumber,
     String? country,
     String? address,
+    String? oldPassword,
+    String? newPassword,
     dynamic avatarFile,
   }) async {
     _setLoading(true);
@@ -209,16 +233,19 @@ class AuthController extends ChangeNotifier {
     try {
       final result = await ApiService.updateProfile(
         fullName: fullName,
+        email: email,
         phoneNumber: phoneNumber,
         country: country,
         address: address,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
         avatarFile: avatarFile,
       );
 
       if (result['success']) {
-        // Update current user data
-        final userData = result['data'];
-        if (userData != null && _currentUser != null) {
+        // Update current user data from response
+        final userData = result['data']['user'];
+        if (userData != null) {
           _setUser(User.fromJson(userData));
         }
         return true;
