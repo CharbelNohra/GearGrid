@@ -12,6 +12,7 @@ class CustomTextField extends StatefulWidget {
   final VoidCallback? onSuffixTap;
   final bool showPasswordToggle;
   final InputBorder? border;
+  final bool enabled;
 
   const CustomTextField({
     super.key,
@@ -25,6 +26,7 @@ class CustomTextField extends StatefulWidget {
     this.onSuffixTap,
     this.showPasswordToggle = true,
     this.border,
+    this.enabled = true,
   });
 
   @override
@@ -77,7 +79,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
     // Default border if none provided
     final defaultBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
+      borderRadius: BorderRadius.circular(10),
       borderSide: BorderSide.none,
     );
 
@@ -96,7 +98,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: widget.border ?? defaultBorder,
         focusedBorder: widget.border ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
             color: colorScheme.primary,
             width: 3,

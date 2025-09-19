@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../common/widgets/custom_app_bar.dart';
+
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen
 ({super.key});
@@ -7,6 +9,12 @@ class FavoritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Favorites',
+        automaticallyImplyLeading: false,
+        notificationCount: 3,
+        cartCount: 2,
+      ),
       body: Center(
         child: Text(
           'Favorites Screen',

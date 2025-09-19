@@ -21,6 +21,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         title: "Account",
+        automaticallyImplyLeading: false,
         notificationCount: 3, // example
         cartCount: 2, // example
       ),
@@ -81,14 +82,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ListTile(
                   leading: const Icon(Icons.color_lens_outlined),
                   title: const Text("App Appearance"),
-                  trailing: LightDark(), // removed const ✅
+                  trailing: LightDark(),
                 ),
 
                 _buildListTile(
                   icon: Icons.edit_outlined,
                   title: "Update Profile",
                   onTap: () {
-                    debugPrint("Go to Update Profile");
+                    context.push('/update-profile');
                   },
                 ),
 
