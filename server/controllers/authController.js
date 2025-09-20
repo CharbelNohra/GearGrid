@@ -180,6 +180,7 @@ export async function updateProfile(req, res) {
 
         if (req.file) {
             user.avatar = `${req.protocol}://${req.get("host")}/uploads/avatars/${req.file.filename}`;
+            // user.avatar = `/uploads/avatars/${req.file.filename}`;
         }
 
         await user.save();
