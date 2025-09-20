@@ -11,13 +11,14 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
     country: { type: String, required: true },
+    countryCode: { type: String, required: true },
     address: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     avatar: { type: String, default: "" },
     isVerified: { type: Boolean, default: false },
     otp: { type: String },
     otpExpires: { type: Date },
-        role: {
+    role: {
         type: String,
         enum: ["client", "admin"],
         default: "client"

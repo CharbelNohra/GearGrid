@@ -15,7 +15,7 @@ export async function register(req, res) {
         const errors = validateRegister(req.body);
         if (errors.length > 0) return res.status(400).json({ errors });
 
-        const { fullName, email, password, confirmPassword, country, address, phoneNumber } = req.body;
+        const { fullName, email, password, confirmPassword, country, countryCode, address, phoneNumber } = req.body;
 
         if (password !== confirmPassword) {
             return res.status(400).json({ error: "Password and confirm password do not match" });
@@ -26,15 +26,15 @@ export async function register(req, res) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const otp = generateOTP();
-        const normalizedPhone = phoneNumber.replace(/\s+/g, "");
 
         const user = new User({
             fullName,
             email,
             password: hashedPassword,
             country,
+            countryCode,
             address,
-            phoneNumber: normalizedPhone,
+            phoneNumber,
             otp,
             otpExpires: Date.now() + 3 * 60 * 1000,
             role: "client"
@@ -147,6 +147,7 @@ export async function getProfile(req, res) {
                 fullName: user.fullName,
                 email: user.email,
                 country: user.country || "",
+                countryCode: user.countryCode || "",
                 address: user.address || "",
                 phoneNumber: user.phoneNumber || "",
                 avatar: user.avatar || "",
@@ -163,7 +164,7 @@ export async function updateProfile(req, res) {
         const user = await User.findOne({ userId: req.user.id });
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        const { fullName, email, newPassword, oldPassword, country, address, phoneNumber } = req.body;
+        const { fullName, email, newPassword, oldPassword, country, countryCode, address, phoneNumber } = req.body;
         if (fullName) user.fullName = fullName;
         if (email) user.email = email;
         if (oldPassword) {
@@ -174,6 +175,7 @@ export async function updateProfile(req, res) {
         if (country) user.country = country;
         if (address) user.address = address;
         if (phoneNumber) user.phoneNumber = phoneNumber;
+        if (countryCode) user.countryCode = countryCode;
 
 
         if (req.file) {
@@ -189,6 +191,7 @@ export async function updateProfile(req, res) {
                 fullName: user.fullName,
                 email: user.email,
                 country: user.country,
+                countryCode: user.countryCode,
                 address: user.address,
                 phoneNumber: user.phoneNumber,
                 avatar: user.avatar,
