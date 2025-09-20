@@ -1,11 +1,21 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import React, { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { FiUser, FiEdit2, FiX, FiCamera, FiMapPin, FiGlobe, FiPhone, FiLock, FiEye, FiEyeOff } from "react-icons/fi"
+import {
+  FiUser,
+  FiEdit2,
+  FiX,
+  FiCamera,
+  FiMapPin,
+  FiGlobe,
+  FiPhone,
+  FiLock,
+  FiEye,
+  FiEyeOff
+} from "react-icons/fi"
 import { CiMail } from "react-icons/ci"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { countryPhoneData } from "@/constants/countries"
@@ -20,7 +30,7 @@ interface ProfileFormData {
   address: string
   country: string
   countryCode: string
-  phone: string
+  phoneNumber: string
   oldPassword: string
   newPassword: string
   avatar?: string
@@ -34,7 +44,7 @@ const Profile = () => {
     address: "",
     country: "",
     countryCode: "",
-    phone: "",
+    phoneNumber: "",
     oldPassword: "",
     newPassword: "",
     avatar: "",
@@ -46,35 +56,20 @@ const Profile = () => {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Parse phone number into country, code, and local number
-  const parsePhone = (phoneNumber?: string) => {
-    if (!phoneNumber) return { country: "", countryCode: "", phone: "" }
-    const found = Object.entries(countryPhoneData).find(([_, data]) =>
-      phoneNumber.startsWith(data.code)
-    )
-    if (found) {
-      const country = found[0]
-      const countryCode = found[1].code
-      const phone = phoneNumber.replace(countryCode, "")
-      return { country, countryCode, phone }
-    }
-    return { country: "", countryCode: "", phone: phoneNumber }
-  }
-
   // Fetch user profile on mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const currentUser = await getProfile()
+        console.log(currentUser)
         setUser(currentUser)
-        const { country, countryCode, phone } = parsePhone(currentUser.phoneNumber)
         setFormData({
           fullName: currentUser.fullName || "",
           email: currentUser.email || "",
           address: currentUser.address || "",
-          country: country || currentUser.country || "",
-          countryCode: countryCode,
-          phone: phone,
+          country: currentUser.country || "",
+          countryCode: currentUser.countryCode || "",
+          phoneNumber: currentUser.phoneNumber || "",
           oldPassword: "",
           newPassword: "",
           avatar: currentUser.avatar || "",
@@ -92,10 +87,10 @@ const Profile = () => {
   // Input change handler
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    if (name === "phone") {
+    if (name === "phoneNumber") {
       const digitsOnly = value.replace(/\D/g, "")
       const maxLength = selectedCountry?.length || digitsOnly.length
-      setFormData((prev) => ({ ...prev, phone: digitsOnly.slice(0, maxLength) }))
+      setFormData((prev) => ({ ...prev, phoneNumber: digitsOnly.slice(0, maxLength) }))
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
     }
@@ -108,7 +103,7 @@ const Profile = () => {
         ...prev,
         country,
         countryCode: countryData.code,
-        phone: "",
+        phoneNumber: "",
       }))
     }
   }
@@ -117,14 +112,13 @@ const Profile = () => {
 
   const handleCancel = () => {
     if (user) {
-      const { country, countryCode, phone } = parsePhone(user.phoneNumber)
       setFormData({
         fullName: user.fullName || "",
         email: user.email || "",
         address: user.address || "",
-        country: country || user.country || "",
-        countryCode: countryCode,
-        phone: phone,
+        country: user.country || "",
+        countryCode: user.countryCode || "",
+        phoneNumber: user.phoneNumber || "",
         oldPassword: "",
         newPassword: "",
         avatar: user.avatar || "",
@@ -148,13 +142,13 @@ const Profile = () => {
   const handleUpdate = async () => {
     if (!user) return
 
-    const newPhone = formData.countryCode + formData.phone
     const hasChanges =
       formData.fullName !== (user.fullName || "") ||
       formData.email !== (user.email || "") ||
       formData.address !== (user.address || "") ||
       formData.country !== (user.country || "") ||
-      newPhone !== (user.phoneNumber || "") ||
+      formData.countryCode !== (user.countryCode || "") ||
+      formData.phoneNumber !== (user.phoneNumber || "") ||
       avatarFile !== null ||
       formData.newPassword.trim() !== ""
 
@@ -163,7 +157,7 @@ const Profile = () => {
       return
     }
 
-    if (selectedCountry && formData.phone.length !== selectedCountry.length) {
+    if (selectedCountry && formData.phoneNumber.length !== selectedCountry.length) {
       toast.error(`Phone number must be exactly ${selectedCountry.length} digits.`)
       return
     }
@@ -185,7 +179,8 @@ const Profile = () => {
         email: formData.email,
         country: formData.country,
         address: formData.address,
-        phoneNumber: newPhone,
+        countryCode: formData.countryCode,
+        phoneNumber: formData.phoneNumber,
       }
 
       if (formData.newPassword.trim()) {
@@ -197,14 +192,13 @@ const Profile = () => {
 
       const freshUser = await getProfile()
       setUser(freshUser)
-      const { country, countryCode, phone } = parsePhone(freshUser.phoneNumber)
       setFormData({
         fullName: freshUser.fullName || "",
         email: freshUser.email || "",
         address: freshUser.address || "",
-        country: country || freshUser.country || "",
-        countryCode: countryCode,
-        phone: phone,
+        country: freshUser.country || "",
+        countryCode: freshUser.countryCode || "",
+        phoneNumber: freshUser.phoneNumber || "",
         oldPassword: "",
         newPassword: "",
         avatar: freshUser.avatar || "",
@@ -244,7 +238,7 @@ const Profile = () => {
           )}
         </div>
         <div className="text-center">
-          <h3 className="text-lg font-semibold">User ID: {user.id}</h3>
+          <h3 className="text-mid">#{user.userId}</h3>
         </div>
       </div>
 
@@ -270,8 +264,10 @@ const Profile = () => {
           <div className="flex gap-2 items-center">
             <Input type="text" name="countryCode" placeholder="Code" value={formData.countryCode} disabled prefix={<FiGlobe className="h-4 w-4 text-muted-foreground" />} />
             <div className="relative w-full">
-              <Input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInputChange} disabled={!isEditing} prefix={<FiPhone className="h-4 w-4 text-muted-foreground" />} />
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{formData.phone.length}/{selectedCountry?.length || 0}</span>
+              <Input type="tel" name="phoneNumber" placeholder="Phone Number" value={formData.phoneNumber} onChange={handleInputChange} disabled={!isEditing} prefix={<FiPhone className="h-4 w-4 text-muted-foreground" />} />
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                {formData.phoneNumber.length}/{selectedCountry?.length || 0}
+              </span>
             </div>
           </div>
 

@@ -1,10 +1,11 @@
 export interface User {
-    id: string;
+    userId: string;
     email: string;
     fullName: string;
     role: string;
     avatar?: string;
     country?: string;
+    countryCode?: string;
     address?: string;
     phoneNumber?: string;
 }
@@ -23,6 +24,7 @@ export interface UpdateProfileData {
     oldPassword?: string;
     newPassword?: string;
     country?: string;
+    countryCode?: string;
     address?: string;
     phoneNumber?: string;
 }
