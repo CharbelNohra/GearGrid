@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-class CustomDropdownField<T> extends StatelessWidget {
+class CustomDropdownField<T> extends StatefulWidget {
   final T? value;
   final String hintText;
   final List<DropdownMenuItem<T>> items;
   final ValueChanged<T?> onChanged;
+  final bool readOnly;
 
   const CustomDropdownField({
     super.key,
@@ -12,35 +13,53 @@ class CustomDropdownField<T> extends StatelessWidget {
     required this.hintText,
     required this.items,
     required this.onChanged,
+    this.readOnly = false,
   });
 
+  @override
+  State<CustomDropdownField<T>> createState() => _CustomDropdownFieldState<T>();
+}
+
+class _CustomDropdownFieldState<T> extends State<CustomDropdownField<T>> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    // Background color and text color depending on readOnly
+    final fillColor = widget.readOnly
+        ? colorScheme.surface.withOpacity(0.5)
+        : colorScheme.surface;
+
+    final textStyle = TextStyle(
+      color: widget.readOnly
+          ? colorScheme.onSurface.withOpacity(0.6)
+          : colorScheme.onSurface,
+    );
+
     return InputDecorator(
       decoration: InputDecoration(
         filled: true,
-        fillColor: colorScheme.surface,
+        fillColor: fillColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
+        enabled: !widget.readOnly,
       ),
-      isEmpty: value == null,
+      isEmpty: widget.value == null,
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
-          value: value,
+          value: widget.value,
           isExpanded: true,
-          iconEnabledColor: colorScheme.onSurface,
-          style: TextStyle(color: colorScheme.onSurface),
           hint: Text(
-            hintText,
-            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+            widget.hintText,
+            style: textStyle.copyWith(color: textStyle.color),
           ),
-          items: items,
-          onChanged: onChanged,
+          items: widget.items,
+          onChanged: widget.readOnly ? null : widget.onChanged,
+          style: textStyle,
+          iconEnabledColor: textStyle.color,
         ),
       ),
     );

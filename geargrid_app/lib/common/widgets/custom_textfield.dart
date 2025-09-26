@@ -12,7 +12,8 @@ class CustomTextField extends StatefulWidget {
   final VoidCallback? onSuffixTap;
   final bool showPasswordToggle;
   final InputBorder? border;
-  final bool enabled;
+  final bool readOnly;
+  final int maxLines;
 
   const CustomTextField({
     super.key,
@@ -26,7 +27,8 @@ class CustomTextField extends StatefulWidget {
     this.onSuffixTap,
     this.showPasswordToggle = true,
     this.border,
-    this.enabled = true,
+    this.readOnly = false,
+    this.maxLines = 1,
   });
 
   @override
@@ -83,10 +85,23 @@ class _CustomTextFieldState extends State<CustomTextField> {
       borderSide: BorderSide.none,
     );
 
+    // Different styles for readOnly vs editable states
+    final fillColor = widget.readOnly 
+        ? colorScheme.surface.withValues(alpha: 0.5)  // Dimmed background when read-only
+        : colorScheme.surface;
+
+    final textStyle = TextStyle(
+      color: widget.readOnly 
+          ? colorScheme.onSurface.withValues(alpha: 0.6)  // Dimmed text when read-only
+          : colorScheme.onSurface,
+    );
+
     return TextField(
       controller: widget.controller,
+      readOnly: widget.readOnly, // THIS IS THE IMPORTANT LINE - it was missing!
       obscureText: widget.isPassword ? _obscureText : false,
       keyboardType: widget.keyboardType,
+      maxLines: widget.maxLines,
       inputFormatters: isPhone 
         ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s\(\)]'))]
         : null,
@@ -94,14 +109,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
         hintText: widget.hintText,
         hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
         filled: true,
-        fillColor: colorScheme.surface,
+        fillColor: fillColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: widget.border ?? defaultBorder,
         focusedBorder: widget.border ?? OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 3,
+            color: widget.readOnly 
+                ? colorScheme.outline  // Different border color when read-only
+                : colorScheme.primary,
+            width: widget.readOnly ? 1 : 3,
           ),
         ),
         prefixText: widget.prefixText,
@@ -117,7 +134,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             : null,
         suffixIcon: _buildSuffixIcon(),
       ),
-      style: TextStyle(color: colorScheme.onSurface),
+      style: textStyle,
     );
   }
 }
