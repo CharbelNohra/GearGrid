@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/countries_phone_code.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/services/api_services.dart';
@@ -34,6 +35,7 @@ class RegistrationFormState extends State<RegistrationForm> {
 
   final addressController = TextEditingController();
   final phoneController = TextEditingController();
+  final countryCodeController = TextEditingController(); // <-- Added
   String? selectedCountry;
 
   @override
@@ -45,6 +47,7 @@ class RegistrationFormState extends State<RegistrationForm> {
     confirmPasswordController.dispose();
     addressController.dispose();
     phoneController.dispose();
+    countryCodeController.dispose();
     super.dispose();
   }
 
@@ -67,7 +70,8 @@ class RegistrationFormState extends State<RegistrationForm> {
     }
 
     if (!Validators.isValidPassword(password)) {
-      _showError("Password must be at least 8 characters, include upper/lower case letters, and a number or symbol.");
+      _showError(
+          "Password must be at least 8 characters, include upper/lower case letters, and a number or symbol.");
       return false;
     }
 
@@ -87,7 +91,8 @@ class RegistrationFormState extends State<RegistrationForm> {
   bool _validateStepTwo() {
     if (selectedCountry == null ||
         addressController.text.isEmpty ||
-        phoneController.text.isEmpty) {
+        phoneController.text.isEmpty ||
+        countryCodeController.text.isEmpty) {
       _showError("Please complete all fields in this step.");
       return false;
     }
@@ -100,28 +105,15 @@ class RegistrationFormState extends State<RegistrationForm> {
     });
 
     try {
-      // print('📝 Starting registration with data:');
-      // print('Email: ${emailController.text.trim()}');
-      // print('Name: ${nameController.text.trim()}');
-      // print('Country: $selectedCountry');
-      // print('Address: ${addressController.text.trim()}');
-      // print('Phone: ${phoneController.text.trim()}');
-
       final result = await ApiService.register(
         fullName: nameController.text.trim(),
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
         country: selectedCountry!,
         address: addressController.text.trim(),
-        phoneNumber: phoneController.text.trim(),
+        phoneNumber: phoneController.text.trim(), 
+        countryCode: countryCodeController.text,
       );
-
-      // print('🎯 Registration API Result:');
-      // print('Success: ${result['success']}');
-      // print('Data: ${result['data']}');
-      // print('Error: ${result['error']}');
-      // print('Status Code: ${result['statusCode']}');
-      // print('Full Result: $result');
 
       setState(() {
         isLoading = false;
@@ -129,7 +121,7 @@ class RegistrationFormState extends State<RegistrationForm> {
 
       if (result['success'] == true) {
         _showSuccess("Registration successful! Please verify your email.");
-        
+
         final formData = {
           'email': emailController.text.trim(),
           'name': nameController.text.trim(),
@@ -137,12 +129,12 @@ class RegistrationFormState extends State<RegistrationForm> {
           'country': selectedCountry!,
           'address': addressController.text.trim(),
           'phone': phoneController.text.trim(),
+          'countryCode': countryCodeController.text, // <-- Added
         };
         widget.onComplete(formData);
       } else {
-        // Try multiple error message formats
         String errorMsg = 'Registration failed. Please try again.';
-        
+
         if (result['error'] != null) {
           errorMsg = result['error'].toString();
         } else if (result['message'] != null) {
@@ -150,18 +142,15 @@ class RegistrationFormState extends State<RegistrationForm> {
         } else if (result['data'] != null && result['data']['message'] != null) {
           errorMsg = result['data']['message'].toString();
         }
-        
-        // print('❌ Showing error message: $errorMsg');
+
         _showError(errorMsg);
       }
     } catch (e) {
-      // print('💥 Exception during registration: $e');
-      // print('Exception type: ${e.runtimeType}');
-      
       setState(() {
         isLoading = false;
       });
-      _showError('Registration failed. Please check your connection and try again.');
+      _showError(
+          'Registration failed. Please check your connection and try again.');
     }
   }
 
@@ -196,6 +185,10 @@ class RegistrationFormState extends State<RegistrationForm> {
   void onCountryChanged(String? country) {
     setState(() {
       selectedCountry = country;
+      // Update the country code automatically
+      countryCodeController.text = country != null
+          ? (countryPhoneData[country]?['code'] ?? '')
+          : '';
     });
   }
 
@@ -219,6 +212,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                 selectedCountry: selectedCountry,
                 addressController: addressController,
                 phoneController: phoneController,
+                countryCodeController: countryCodeController, // <-- Added
                 onCountryChanged: onCountryChanged,
               ),
             ],

@@ -41,6 +41,7 @@ class ApiService {
     required String email,
     required String password,
     required String country,
+    required String countryCode,
     required String address,
     required String phoneNumber,
   }) async {
@@ -54,6 +55,7 @@ class ApiService {
           'password': password,
           'confirmPassword': password,
           'country': country,
+          'countryCode': countryCode,
           'address': address,
           'phoneNumber': phoneNumber,
         }),

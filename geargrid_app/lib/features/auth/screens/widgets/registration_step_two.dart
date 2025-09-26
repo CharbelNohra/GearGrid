@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/dropdown_list.dart';
-import '../../../../common/widgets/custom_phonefield.dart';
 import '../../../../common/widgets/custom_textfield.dart';
 import '../../../../core/constants/countries_phone_code.dart';
 import 'step_header.dart';
@@ -9,6 +8,7 @@ class RegistrationStepTwo extends StatelessWidget {
   final String? selectedCountry;
   final TextEditingController addressController;
   final TextEditingController phoneController;
+  final TextEditingController countryCodeController;
   final Function(String?) onCountryChanged;
 
   const RegistrationStepTwo({
@@ -17,12 +17,12 @@ class RegistrationStepTwo extends StatelessWidget {
     required this.addressController,
     required this.phoneController,
     required this.onCountryChanged,
+    required this.countryCodeController,
   });
 
   String? _getCountryCode(String? country) {
     if (country == null) return null;
-    final countryData = countryPhoneData[country];
-    return countryData?['code'] as String?;
+    return countryPhoneData[country]?['code'] as String?;
   }
 
   @override
@@ -35,19 +35,43 @@ class RegistrationStepTwo extends StatelessWidget {
       children: [
         const StepHeader(currentStep: 2, totalSteps: 2),
         const SizedBox(height: 16),
-        CustomDropdownField<String>(
-          value: selectedCountry,
-          hintText: "Select your country",
-          items:
-              countryPhoneData.keys
-                  .map(
-                    (country) =>
-                        DropdownMenuItem(value: country, child: Text(country)),
-                  )
-                  .toList(),
-          onChanged: onCountryChanged,
+        Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: CustomTextField(
+                controller: countryCodeController,
+                hintText: "Code",
+                readOnly: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Country dropdown
+            Expanded(
+              flex: 3,
+              child: CustomDropdownField<String>(
+                value: selectedCountry,
+                hintText: "Select your country",
+                items: countryPhoneData.keys
+                    .map(
+                      (country) => DropdownMenuItem(
+                        value: country,
+                        child: Text(country),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  onCountryChanged(value);
+                  countryCodeController.text = _getCountryCode(value) ?? '';
+                },
+              ),
+            ),
+          ],
         ),
+
         const SizedBox(height: 16),
+        
         CustomTextField(
           controller: addressController,
           hintText: "Address",
@@ -57,14 +81,18 @@ class RegistrationStepTwo extends StatelessWidget {
             size: 20,
           ),
         ),
+
         const SizedBox(height: 16),
-        CustomPhoneField(
+
+        CustomTextField(
           controller: phoneController,
-          hintText: "Enter phone number",
-          countryCode: _getCountryCode(selectedCountry),
-          onCountryTap: () {
-            // Optional: You can add logic to open country selector here
-          },
+          hintText: "Phone Number",
+          keyboardType: TextInputType.phone,
+          prefixIcon: Icon(
+            Icons.phone_outlined,
+            color: colors.onSurface.withValues(alpha: 0.6),
+            size: 20,
+          ),
         ),
       ],
     );

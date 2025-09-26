@@ -27,19 +27,26 @@ class OTPVerificationForm extends StatefulWidget {
 
 class _OTPVerificationFormState extends State<OTPVerificationForm> {
   final List<TextEditingController> controllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
+      List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
   bool isLoading = false;
   bool isResending = false;
-
   Timer? _debounceTimer;
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
-    for (var controller in controllers) controller.dispose();
-    for (var focusNode in focusNodes) focusNode.dispose();
+    for (var c in controllers) c.dispose();
+    for (var f in focusNodes) f.dispose();
     super.dispose();
+  }
+
+  String _getFullPhoneNumber() {
+    if (widget.registrationData != null &&
+        widget.registrationData!['countryCode'] != null) {
+      return '${widget.registrationData!['countryCode']}${widget.registrationData!['phone']}';
+    }
+    return widget.registrationData?['phone'] ?? '';
   }
 
   void _verifyOtp() async {
@@ -58,15 +65,10 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
       setState(() => isLoading = false);
 
       if (result['success'] == true) {
-        if (widget.isPasswordReset) {
-          widget.onSuccess('OTP verified successfully!');
-          widget.onOTPVerified();
-        } else {
-          // For registration flow, OTP verification means registration is complete
-          // The registration API call was already made in the RegistrationForm
-          widget.onSuccess('Registration completed successfully!');
-          widget.onOTPVerified();
-        }
+        widget.onSuccess(widget.isPasswordReset
+            ? 'OTP verified successfully!'
+            : 'Registration completed successfully!');
+        widget.onOTPVerified();
       } else {
         widget.onError(result['error'] ?? 'Invalid OTP. Please try again.');
         _clearOTPFields();
@@ -92,18 +94,17 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
       Map<String, dynamic> result;
 
       if (widget.isPasswordReset) {
-        // For password reset, resend OTP using forgot password endpoint
         result = await ApiService.forgotPassword(email: widget.email);
       } else {
-        // For registration, resend OTP by calling register again
         if (widget.registrationData != null) {
           result = await ApiService.register(
             fullName: widget.registrationData!['name']!,
             email: widget.registrationData!['email']!,
             password: widget.registrationData!['password']!,
             country: widget.registrationData!['country']!,
+            countryCode: widget.registrationData!['countryCode']!,
             address: widget.registrationData!['address']!,
-            phoneNumber: widget.registrationData!['phone']!,
+            phoneNumber: _getFullPhoneNumber(),
           );
         } else {
           throw Exception('Registration data not available');
@@ -125,14 +126,11 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
   }
 
   void _onOTPFieldChanged(int index, String value) {
-    // Focus navigation
     if (value.length == 1 && index < 5) focusNodes[index + 1].requestFocus();
     else if (value.isEmpty && index > 0) focusNodes[index - 1].requestFocus();
 
-    // Debounce auto-submit
     _debounceTimer?.cancel();
-    final allFilled = controllers.every((c) => c.text.isNotEmpty);
-    if (allFilled && !isLoading) {
+    if (controllers.every((c) => c.text.isNotEmpty) && !isLoading) {
       _debounceTimer = Timer(const Duration(milliseconds: 200), () {
         if (mounted) _verifyOtp();
       });
@@ -154,7 +152,9 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
         const SizedBox(height: 16),
         Text(
           'Enter the 6-digit code sent to',
-          style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurface.withAlpha(180)),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colors.onSurface.withValues(alpha: 0.6),
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -185,8 +185,10 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: colors.onPrimary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              disabledBackgroundColor: colors.outline.withAlpha(80),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              disabledBackgroundColor: colors.outline.withOpacity(0.3),
             ),
             child: isLoading
                 ? SizedBox(

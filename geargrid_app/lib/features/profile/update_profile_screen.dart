@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geargrid/common/widgets/custom_app_bar.dart';
 import 'package:geargrid/common/widgets/custom_textfield.dart';
-
+import 'package:geargrid/core/utils/snackbar_helper.dart';
 import '../../common/widgets/dropdown_list.dart';
 import '../../core/constants/countries_phone_code.dart';
 
@@ -87,9 +87,11 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    ScaffoldMessenger.of(
+    SnackBarHelper.showSuccess(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Saving profile...")));
+      "Saving Profile...",
+      "Please wait while we save your profile information.",
+    );
 
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
@@ -107,8 +109,10 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
       };
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile saved successfully!")),
+    SnackBarHelper.showSuccess(
+      context,
+      "Profile updated successfully",
+      "Saved changes.",
     );
   }
 
@@ -131,7 +135,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
       if (country != null) {
         countryController.text = country;
         if (countryPhoneData.containsKey(country)) {
-          countryCodeController.text = countryPhoneData[country]!.toString();
+          countryCodeController.text = countryPhoneData[country]!['code'].toString();
         }
       }
     });
@@ -139,9 +143,11 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   Future<void> _pickAvatar() async {
     if (!isEditing) return;
-    ScaffoldMessenger.of(
+    SnackBarHelper.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Avatar picker tapped")));
+      "Avatar Change",
+      "Avatar change functionality is not implemented in this demo.",
+    );
   }
 
   @override
@@ -213,7 +219,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               right: 0,
                               child: Icon(
                                 Icons.camera_alt,
-                                color: Theme.of(context).colorScheme.onSurface,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 size: 25,
                               ),
                             ),
@@ -241,7 +247,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 keyboardType: TextInputType.name,
                 prefixIcon: Icon(
                   Icons.person,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   size: 30,
                 ),
               ),
@@ -254,7 +260,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: Icon(
                   Icons.email,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   size: 30,
                 ),
               ),
@@ -303,7 +309,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 readOnly: !isEditing,
                 prefixIcon: Icon(
                   Icons.location_on_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   size: 30,
                 ),
               ),
@@ -316,7 +322,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 keyboardType: TextInputType.phone,
                 prefixIcon: Icon(
                   Icons.phone,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   size: 30,
                 ),
               ),
