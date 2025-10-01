@@ -12,8 +12,6 @@ class FavoritesScreen extends StatelessWidget {
       appBar: CustomAppBar(
         title: 'Favorites',
         automaticallyImplyLeading: false,
-        notificationCount: 3,
-        cartCount: 2,
       ),
       body: Center(
         child: Text(

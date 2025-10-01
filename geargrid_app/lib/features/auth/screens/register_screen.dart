@@ -33,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _onRegistrationComplete() {
     _showSuccess('Please log in.');
     Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return;
       context.go('/login');
     });
   }

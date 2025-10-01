@@ -3,8 +3,6 @@ import 'package:go_router/go_router.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final VoidCallback? onNotificationTap;
-  final VoidCallback? onCartTap;
   final int notificationCount;
   final int cartCount;
   final bool automaticallyImplyLeading;
@@ -12,10 +10,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
     required this.title,
-    this.onNotificationTap,
-    this.onCartTap,
-    this.notificationCount = 0,
-    this.cartCount = 0,
+    this.notificationCount = 3,
+    this.cartCount = 3,
     this.automaticallyImplyLeading = true,
   });
 
@@ -39,21 +35,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         _BadgeIconButton(
           icon: Icons.notifications,
           count: notificationCount,
-          onTap: onNotificationTap,
+          onTap: () { 
+            context.push('/notifications');
+          },
         ),
 
         // 🛒 Cart
         _BadgeIconButton(
           icon: Icons.shopping_cart,
           count: cartCount,
-          onTap: onCartTap,
+          onTap: () {
+            print('Cart tapped');
+          },
         ),
       ],
     );
   }
 }
 
-/// 🔹 Private reusable widget for icon with a badge
 class _BadgeIconButton extends StatelessWidget {
   final IconData icon;
   final int count;
@@ -63,35 +62,22 @@ class _BadgeIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        IconButton(
-          icon: Icon(
-            icon,
-            color: Theme.of(context).colorScheme.primary,
-            size: 30,
-          ),
-          onPressed: onTap,
-        ),
-        if (count > 0)
-          Positioned(
-            right: 7,
-            top: 7,
-            child: CircleAvatar(
-              radius: 8,
-              backgroundColor: Theme.of(context).colorScheme.error,
-              child: FittedBox(
-                child: Text(
-                  count.toString(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
+    return IconButton(
+      icon: count > 0
+          ? Badge.count(
+              count: count,
+              child: Icon(
+                icon,
+                size: 27,
+                color: Theme.of(context).colorScheme.primary,
               ),
+            )
+          : Icon(
+              icon,
+              size: 27,
+              color: Theme.of(context).colorScheme.primary,
             ),
-          ),
-      ],
+      onPressed: onTap,
     );
   }
 }

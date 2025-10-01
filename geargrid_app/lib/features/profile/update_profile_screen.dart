@@ -1,22 +1,26 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:geargrid/common/widgets/custom_app_bar.dart';
 import 'package:geargrid/common/widgets/custom_textfield.dart';
 import 'package:geargrid/core/utils/snackbar_helper.dart';
 import '../../common/widgets/dropdown_list.dart';
 import '../../core/constants/countries_phone_code.dart';
+import '../../core/providers/flutter_riverpod.dart';
 
-class UpdateProfileScreen extends StatefulWidget {
+class UpdateProfileScreen extends ConsumerStatefulWidget {
   const UpdateProfileScreen({super.key});
 
   @override
-  State<UpdateProfileScreen> createState() => UpdateProfileScreenState();
+  ConsumerState<UpdateProfileScreen> createState() =>
+      UpdateProfileScreenState();
 }
 
-class UpdateProfileScreenState extends State<UpdateProfileScreen> {
-  Map<String, dynamic>? user;
+class UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   String? selectedCountry;
   bool isEditing = false;
-  bool isLoading = true;
 
   late TextEditingController fullNameController;
   late TextEditingController emailController;
@@ -26,6 +30,11 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
   late TextEditingController phoneController;
   late TextEditingController oldPasswordController;
   late TextEditingController newPasswordController;
+
+  bool hideOldPassword = true;
+  bool hideNewPassword = true;
+
+  File? avatarFile;
 
   @override
   void initState() {
@@ -39,7 +48,26 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
     oldPasswordController = TextEditingController();
     newPasswordController = TextEditingController();
 
-    _fetchUser();
+    _populateUser();
+  }
+
+  void _populateUser() {
+    final auth = ref.read(authControllerProvider);
+    final user = auth.currentUser;
+    if (user != null) {
+      fullNameController.text = user.fullName;
+      emailController.text = user.email;
+      addressController.text = user.address;
+      countryController.text = user.country;
+      countryCodeController.text = user.countryCode;
+      phoneController.text = user.phoneNumber;
+      selectedCountry = user.country;
+    }
+  }
+
+  int? _getPhoneLength(String? country) {
+    if (country == null) return null;
+    return countryPhoneData[country]?['length'] as int?;
   }
 
   @override
@@ -55,87 +83,80 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchUser() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    final fetchedUser = {
-      "id": "#12345",
-      "fullName": "John Doe",
-      "email": "john@example.com",
-      "address": "Beirut, Lebanon",
-      "country": "Lebanon",
-      "countryCode": "+961",
-      "phone": "71123456",
-      "avatar": "",
-    };
-
-    setState(() {
-      user = fetchedUser;
-      fullNameController.text = fetchedUser["fullName"] ?? "";
-      emailController.text = fetchedUser["email"] ?? "";
-      addressController.text = fetchedUser["address"] ?? "";
-      countryController.text = fetchedUser["country"] ?? "";
-      countryCodeController.text = fetchedUser["countryCode"] ?? "";
-      phoneController.text = fetchedUser["phone"] ?? "";
-      selectedCountry = fetchedUser["country"];
-      isLoading = false;
-    });
-  }
-
   Future<void> _saveProfile() async {
-    SnackBarHelper.showSuccess(
-      context,
-      "Saving Profile...",
-      "Please wait while we save your profile information.",
+    final auth = ref.read(authControllerProvider);
+
+    final success = await auth.updateProfile(
+      fullName: fullNameController.text,
+      email: emailController.text,
+      address: addressController.text,
+      country: selectedCountry ?? countryController.text,
+      phoneNumber: phoneController.text,
+      oldPassword:
+          oldPasswordController.text.isNotEmpty
+              ? oldPasswordController.text
+              : null,
+      newPassword:
+          newPasswordController.text.isNotEmpty
+              ? newPasswordController.text
+              : null,
+      avatarFile: avatarFile,
     );
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
 
-    // Update user data
-    setState(() {
-      user = {
-        ...user!,
-        "fullName": fullNameController.text,
-        "email": emailController.text,
-        "address": addressController.text,
-        "country": selectedCountry ?? countryController.text,
-        "countryCode": countryCodeController.text,
-        "phone": phoneController.text,
-      };
-    });
-
-    SnackBarHelper.showSuccess(
-      context,
-      "Profile updated successfully",
-      "Saved changes.",
-    );
+    if (success) {
+      SnackBarHelper.showSuccess(
+        context,
+        "Profile updated successfully",
+        "Saved changes.",
+      );
+    } else if (auth.error != null) {
+      SnackBarHelper.showError(context, "Update Failed", auth.error!);
+    }
   }
 
   void _toggleEditMode() async {
     if (isEditing) {
-      // Save the profile
       await _saveProfile();
-    }
 
+      if (ref.read(authControllerProvider).error != null) {
+        _populateUser();
+        return;
+      }
+
+      setState(() {
+        isEditing = false;
+        oldPasswordController.clear();
+        newPasswordController.clear();
+        avatarFile = null;
+      });
+    } else {
+      setState(() {
+        isEditing = true;
+      });
+    }
+  }
+
+  void _cancelEdit() {
     setState(() {
-      isEditing = !isEditing;
+      isEditing = false;
+      _populateUser();
+      oldPasswordController.clear();
+      newPasswordController.clear();
+      avatarFile = null;
     });
   }
 
   void _onCountryChanged(String? country) {
-    if (!isEditing) return; // Exit early if not in editing mode
-
+    if (!isEditing) return;
     setState(() {
       selectedCountry = country;
       if (country != null) {
         countryController.text = country;
         if (countryPhoneData.containsKey(country)) {
-          countryCodeController.text = countryPhoneData[country]!['code'].toString();
+          countryCodeController.text =
+              countryPhoneData[country]!['code'].toString();
         }
       }
     });
@@ -143,34 +164,42 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   Future<void> _pickAvatar() async {
     if (!isEditing) return;
-    SnackBarHelper.showInfo(
-      context,
-      "Avatar Change",
-      "Avatar change functionality is not implemented in this demo.",
-    );
+
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        avatarFile = File(pickedFile.path);
+      });
+      if (!mounted) return;
+      SnackBarHelper.showSuccess(
+        context,
+        "Avatar Selected",
+        "New avatar will be saved when you press Save.",
+      );
+    } else {
+      if (!mounted) return;
+      SnackBarHelper.showInfo(
+        context,
+        "No image selected",
+        "You did not select any image.",
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        appBar: CustomAppBar(
-          title: 'Update Profile',
-          automaticallyImplyLeading: true,
-          notificationCount: 3,
-          cartCount: 2,
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
+    final auth = ref.watch(authControllerProvider);
+    final isLoading = auth.isLoading;
+    final phoneLength = _getPhoneLength(selectedCountry);
+
+    if (isLoading && auth.currentUser == null) {
+      return Scaffold(body: const Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Update Profile',
-        automaticallyImplyLeading: true,
-        notificationCount: 3,
-        cartCount: 2,
-      ),
+      appBar: CustomAppBar(title: 'Update Profile'),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -178,95 +207,107 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-
-              // Edit / Save button
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  icon: Icon(isEditing ? Icons.check : Icons.edit),
-                  label: Text(isEditing ? "Save" : "Edit"),
-                  onPressed: _toggleEditMode,
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Avatar and username section
-              Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: isEditing ? _pickAvatar : null,
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundImage: const AssetImage(
-                              'assets/images/launcher_icon.png',
-                            ),
+              Row(
+                children: [
+                  if (isEditing) ...[
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSurface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          if (isEditing)
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Icon(
-                                Icons.camera_alt,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                                size: 25,
-                              ),
-                            ),
-                        ],
+                        ),
+                        icon: const Icon(Icons.close),
+                        label: const Text("Cancel"),
+                        onPressed: _cancelEdit,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      user?["id"] ?? 'User12345',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: const Icon(Icons.check),
+                        label: const Text("Save"),
+                        onPressed: _toggleEditMode,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                  ],
+                  ] else
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.edit),
+                      label: const Text("Edit"),
+                      onPressed: _toggleEditMode,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              Center(
+                child: InkWell(
+                  onTap: isEditing ? _pickAvatar : null,
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage:
+                            avatarFile != null
+                                ? FileImage(avatarFile!)
+                                : NetworkImage(auth.currentUser?.avatar ?? '')
+                                    as ImageProvider,
+                      ),
+                      if (isEditing)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Icon(
+                            Icons.camera_alt,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withAlpha(160),
+                            size: 25,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-
-              // Form fields
+              const SizedBox(height: 20),
               CustomTextField(
                 controller: fullNameController,
                 hintText: "Full Name",
                 readOnly: !isEditing,
                 keyboardType: TextInputType.name,
-                prefixIcon: Icon(
-                  Icons.person,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  size: 30,
-                ),
+                prefixIcon: Icon(Icons.person),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: emailController,
                 hintText: "Email",
                 readOnly: !isEditing,
                 keyboardType: TextInputType.emailAddress,
-                prefixIcon: Icon(
-                  Icons.email,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  size: 30,
-                ),
+                prefixIcon: Icon(Icons.email),
               ),
               const SizedBox(height: 16),
-
-              // Country code and country dropdown row
               Row(
                 children: [
                   Expanded(
@@ -274,7 +315,7 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                     child: CustomTextField(
                       controller: countryCodeController,
                       hintText: "Code",
-                      readOnly: true, // Always disabled as it's auto-filled
+                      readOnly: true,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -287,12 +328,9 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       items:
                           countryPhoneData.keys
                               .map(
-                                (country) => DropdownMenuItem<String>(
+                                (country) => DropdownMenuItem(
                                   value: country,
-                                  child: Text(
-                                    country,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  child: Text(country),
                                 ),
                               )
                               .toList(),
@@ -302,32 +340,83 @@ class UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: addressController,
                 hintText: "Address",
                 readOnly: !isEditing,
-                prefixIcon: Icon(
-                  Icons.location_on_outlined,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  size: 30,
-                ),
+                prefixIcon: Icon(Icons.location_on_outlined),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: phoneController,
                 hintText: "Phone",
                 readOnly: !isEditing,
                 keyboardType: TextInputType.phone,
-                prefixIcon: Icon(
-                  Icons.phone,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  size: 30,
-                ),
+                prefixIcon: Icon(Icons.phone),
+                inputFormatters:
+                    isEditing && phoneLength != null
+                        ? [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(phoneLength),
+                        ]
+                        : (isEditing
+                            ? [FilteringTextInputFormatter.digitsOnly]
+                            : null),
               ),
-
-              const SizedBox(height: 30),
+              if (isEditing && phoneLength != null) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Phone number length: $phoneLength digits',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              if (isEditing) ...[
+                CustomTextField(
+                  controller: oldPasswordController,
+                  hintText: "Old Password",
+                  readOnly: !isEditing,
+                  isPassword: hideOldPassword,
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      hideOldPassword ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        hideOldPassword = !hideOldPassword;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: newPasswordController,
+                  hintText: "New Password",
+                  readOnly: !isEditing,
+                  isPassword: hideNewPassword,
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      hideNewPassword ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        hideNewPassword = !hideNewPassword;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
             ],
           ),
         ),

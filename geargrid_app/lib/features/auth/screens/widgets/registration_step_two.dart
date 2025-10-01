@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../common/widgets/dropdown_list.dart';
 import '../../../../common/widgets/custom_textfield.dart';
 import '../../../../core/constants/countries_phone_code.dart';
@@ -25,9 +26,15 @@ class RegistrationStepTwo extends StatelessWidget {
     return countryPhoneData[country]?['code'] as String?;
   }
 
+  int? _getPhoneLength(String? country) {
+    if (country == null) return null;
+    return countryPhoneData[country]?['length'] as int?;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final phoneLength = _getPhoneLength(selectedCountry);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -93,7 +100,27 @@ class RegistrationStepTwo extends StatelessWidget {
             color: colors.onSurface.withValues(alpha: 0.6),
             size: 20,
           ),
+          inputFormatters: phoneLength != null
+              ? [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(phoneLength),
+                ]
+              : [FilteringTextInputFormatter.digitsOnly],
         ),
+
+        if (phoneLength != null) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Phone number length: $phoneLength digits',
+              style: TextStyle(
+                fontSize: 12,
+                color: colors.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

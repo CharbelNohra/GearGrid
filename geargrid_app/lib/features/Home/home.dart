@@ -10,8 +10,6 @@ class HomeScreen extends StatelessWidget {
       appBar: CustomAppBar(
         title: 'Home',
         automaticallyImplyLeading: false,
-        notificationCount: 3,
-        cartCount: 2,
       ),
       body: Center(
         child: Text(

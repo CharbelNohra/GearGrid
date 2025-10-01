@@ -14,6 +14,7 @@ class CustomTextField extends StatefulWidget {
   final InputBorder? border;
   final bool readOnly;
   final int maxLines;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
@@ -29,6 +30,7 @@ class CustomTextField extends StatefulWidget {
     this.border,
     this.readOnly = false,
     this.maxLines = 1,
+    this.inputFormatters,
   });
 
   @override
@@ -87,24 +89,25 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
     // Different styles for readOnly vs editable states
     final fillColor = widget.readOnly 
-        ? colorScheme.surface.withValues(alpha: 0.5)  // Dimmed background when read-only
+        ? colorScheme.surface.withValues(alpha: 0.5)
         : colorScheme.surface;
 
     final textStyle = TextStyle(
       color: widget.readOnly 
-          ? colorScheme.onSurface.withValues(alpha: 0.6)  // Dimmed text when read-only
+          ? colorScheme.onSurface.withValues(alpha: 0.6)
           : colorScheme.onSurface,
     );
 
     return TextField(
       controller: widget.controller,
-      readOnly: widget.readOnly, // THIS IS THE IMPORTANT LINE - it was missing!
+      readOnly: widget.readOnly,
       obscureText: widget.isPassword ? _obscureText : false,
       keyboardType: widget.keyboardType,
       maxLines: widget.maxLines,
-      inputFormatters: isPhone 
-        ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s\(\)]'))]
-        : null,
+      inputFormatters: widget.inputFormatters ?? 
+        (isPhone 
+          ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s\(\)]'))]
+          : null),
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
@@ -116,7 +119,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
             color: widget.readOnly 
-                ? colorScheme.outline  // Different border color when read-only
+                ? colorScheme.outline
                 : colorScheme.primary,
             width: widget.readOnly ? 1 : 3,
           ),

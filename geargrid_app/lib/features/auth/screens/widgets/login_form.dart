@@ -1,34 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_textfield.dart';
+import '../../../../core/providers/flutter_riverpod.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/snackbar_helper.dart';
-import '../../../../core/services/api_services.dart';
-import '../../../../features/auth/models/user_model.dart';
 import 'login_welcome_header.dart';
 
-class LoginForm extends StatefulWidget {
+class LoginForm extends ConsumerStatefulWidget {
   final VoidCallback onLoginSuccess;
-  final Function(String) onLoginError;
   final VoidCallback onForgotPassword;
   final VoidCallback onNavigateToRegister;
 
   const LoginForm({
     super.key,
     required this.onLoginSuccess,
-    required this.onLoginError,
     required this.onForgotPassword,
-    required this.onNavigateToRegister,
+    required this.onNavigateToRegister, required void Function(String message) onLoginError,
   });
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  ConsumerState<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends ConsumerState<LoginForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool isLoading = false;
 
   @override
   void dispose() {
@@ -37,66 +34,51 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _login() async {
+  Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    if (password.isEmpty || email.isEmpty) {
-      widget.onLoginError("All fields are required.");
+    if (email.isEmpty || password.isEmpty) {
+      SnackBarHelper.showError(context, "Validation Error", "All fields are required.");
       return;
     }
-    
+
     if (!Validators.isValidEmail(email)) {
-      widget.onLoginError("Please enter a valid email address.");
+      SnackBarHelper.showError(context, "Validation Error", "Please enter a valid email.");
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    final authController = ref.read(authControllerProvider);
+    
+    final success = await authController.login(email: email, password: password);
 
-    try {
-      final result = await ApiService.login(
-        email: email,
-        password: password,
-      );
-
-      setState(() {
-        isLoading = false;
-      });
-
-      if (result['success']) {
-        final userData = result['data'];
-        if (userData != null) {
-          final user = User.fromJson(userData);
-          
-          if (user.role == 'admin') {
-            SnackBarHelper.showError(
-              context, 
-              "Access Denied", 
-              "This app is for clients only. Admin access is not allowed."
-            );
-            
-            await ApiService.removeToken();
-            return;
-          }
-        }
-        
-        widget.onLoginSuccess();
-      } else {
-        widget.onLoginError(result['error'] ?? "Login failed. Please try again.");
+    if (success) {
+      if (!mounted) return;
+      if (authController.currentUser?.role == 'admin') {
+        SnackBarHelper.showError(
+          context,
+          "Access Denied",
+          "This app is for clients only. Admin access is not allowed.",
+        );
+        await authController.logout();
+        return;
       }
-      
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      widget.onLoginError("Network error. Please check your connection and try again.");
+      widget.onLoginSuccess();
+    } else {
+      if (!mounted) return;
+      SnackBarHelper.showError(
+        context,
+        "Login Failed",
+        authController.error ?? "An error occurred. Please try again.",
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authController = ref.watch(authControllerProvider);
+    final isLoading = authController.isLoading;
+
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
@@ -133,13 +115,10 @@ class _LoginFormState extends State<LoginForm> {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: widget.onForgotPassword,
-            style: TextButton.styleFrom(
-              foregroundColor: colors.primary,
-            ),
+            style: TextButton.styleFrom(foregroundColor: colors.primary),
             child: const Text("Forgot password?"),
           ),
         ),
-
         const SizedBox(height: 16),
 
         CustomButton(
@@ -152,15 +131,10 @@ class _LoginFormState extends State<LoginForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "Don't have an account?",
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text("Don't have an account?", style: theme.textTheme.bodyMedium),
             TextButton(
               onPressed: widget.onNavigateToRegister,
-              style: TextButton.styleFrom(
-                foregroundColor: colors.primary,
-              ),
+              style: TextButton.styleFrom(foregroundColor: colors.primary),
               child: const Text("Register"),
             ),
           ],

@@ -13,6 +13,7 @@ class _AnimatedSplashScreenState extends State<AnimatedSplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 3000), () {
+      if (!mounted) return;
       context.go('/login');
     });
   }

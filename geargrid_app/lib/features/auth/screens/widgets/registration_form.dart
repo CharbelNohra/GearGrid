@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/countries_phone_code.dart';
+import '../../../../core/providers/flutter_riverpod.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/services/api_services.dart';
 import 'registration_step_one.dart';
 import 'registration_step_two.dart';
 import 'registration_navigation.dart';
 
-class RegistrationForm extends StatefulWidget {
+class RegistrationForm extends ConsumerStatefulWidget {
   final Function(Map<String, String>) onComplete;
   final Function(String) onError;
   final Function(String) onSuccess;
@@ -20,13 +21,12 @@ class RegistrationForm extends StatefulWidget {
   });
 
   @override
-  State<RegistrationForm> createState() => RegistrationFormState();
+  ConsumerState<RegistrationForm> createState() => RegistrationFormState();
 }
 
-class RegistrationFormState extends State<RegistrationForm> {
+class RegistrationFormState extends ConsumerState<RegistrationForm> {
   final _pageController = PageController();
   int currentStep = 0;
-  bool isLoading = false;
 
   final emailController = TextEditingController();
   final nameController = TextEditingController();
@@ -35,8 +35,10 @@ class RegistrationFormState extends State<RegistrationForm> {
 
   final addressController = TextEditingController();
   final phoneController = TextEditingController();
-  final countryCodeController = TextEditingController(); // <-- Added
+  final countryCodeController = TextEditingController();
   String? selectedCountry;
+
+  bool get isLoading => ref.watch(authControllerProvider).isLoading;
 
   @override
   void dispose() {
@@ -51,13 +53,8 @@ class RegistrationFormState extends State<RegistrationForm> {
     super.dispose();
   }
 
-  void _showError(String message) {
-    SnackBarHelper.showError(context, "Error", message);
-  }
-
-  void _showSuccess(String message) {
-    SnackBarHelper.showSuccess(context, "Success", message);
-  }
+  void _showError(String message) => SnackBarHelper.showError(context, "Error", message);
+  void _showSuccess(String message) => SnackBarHelper.showSuccess(context, "Success", message);
 
   bool _validateStepOne() {
     final email = emailController.text.trim();
@@ -100,66 +97,39 @@ class RegistrationFormState extends State<RegistrationForm> {
   }
 
   Future<void> _submitRegistration() async {
-    setState(() {
-      isLoading = true;
-    });
+    final authController = ref.read(authControllerProvider);
 
-    try {
-      final result = await ApiService.register(
-        fullName: nameController.text.trim(),
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-        country: selectedCountry!,
-        address: addressController.text.trim(),
-        phoneNumber: phoneController.text.trim(), 
-        countryCode: countryCodeController.text,
-      );
+    final success = await authController.register(
+      fullName: nameController.text.trim(),
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      country: selectedCountry!,
+      address: addressController.text.trim(),
+      phoneNumber: phoneController.text.trim(),
+      countryCode: countryCodeController.text,
+    );
 
-      setState(() {
-        isLoading = false;
-      });
+    if (success) {
+      _showSuccess("Registration successful! Please verify your email.");
 
-      if (result['success'] == true) {
-        _showSuccess("Registration successful! Please verify your email.");
-
-        final formData = {
-          'email': emailController.text.trim(),
-          'name': nameController.text.trim(),
-          'password': passwordController.text.trim(),
-          'country': selectedCountry!,
-          'address': addressController.text.trim(),
-          'phone': phoneController.text.trim(),
-          'countryCode': countryCodeController.text, // <-- Added
-        };
-        widget.onComplete(formData);
-      } else {
-        String errorMsg = 'Registration failed. Please try again.';
-
-        if (result['error'] != null) {
-          errorMsg = result['error'].toString();
-        } else if (result['message'] != null) {
-          errorMsg = result['message'].toString();
-        } else if (result['data'] != null && result['data']['message'] != null) {
-          errorMsg = result['data']['message'].toString();
-        }
-
-        _showError(errorMsg);
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      _showError(
-          'Registration failed. Please check your connection and try again.');
+      final formData = {
+        'email': emailController.text.trim(),
+        'name': nameController.text.trim(),
+        'password': passwordController.text.trim(),
+        'country': selectedCountry!,
+        'address': addressController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'countryCode': countryCodeController.text,
+      };
+      widget.onComplete(formData);
+    } else {
+      _showError(authController.error ?? 'Registration failed. Please try again.');
     }
   }
 
   void nextStep() {
-    if (currentStep == 0) {
-      if (!_validateStepOne()) return;
-    } else if (currentStep == 1) {
-      if (!_validateStepTwo()) return;
-    }
+    if (currentStep == 0 && !_validateStepOne()) return;
+    if (currentStep == 1 && !_validateStepTwo()) return;
 
     if (currentStep < 1) {
       setState(() => currentStep++);
@@ -185,7 +155,6 @@ class RegistrationFormState extends State<RegistrationForm> {
   void onCountryChanged(String? country) {
     setState(() {
       selectedCountry = country;
-      // Update the country code automatically
       countryCodeController.text = country != null
           ? (countryPhoneData[country]?['code'] ?? '')
           : '';
@@ -212,7 +181,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                 selectedCountry: selectedCountry,
                 addressController: addressController,
                 phoneController: phoneController,
-                countryCodeController: countryCodeController, // <-- Added
+                countryCodeController: countryCodeController,
                 onCountryChanged: onCountryChanged,
               ),
             ],

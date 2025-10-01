@@ -27,12 +27,12 @@ class _CustomDropdownFieldState<T> extends State<CustomDropdownField<T>> {
 
     // Background color and text color depending on readOnly
     final fillColor = widget.readOnly
-        ? colorScheme.surface.withOpacity(0.5)
+        ? colorScheme.surface.withValues(alpha: 0.1)
         : colorScheme.surface;
 
     final textStyle = TextStyle(
       color: widget.readOnly
-          ? colorScheme.onSurface.withOpacity(0.6)
+          ? colorScheme.onSurface.withValues(alpha: 0.6)
           : colorScheme.onSurface,
     );
 

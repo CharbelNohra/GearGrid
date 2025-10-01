@@ -1,10 +1,11 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // - For Android emulator: 'http://10.0.2.2:5000'
   static const String baseUrl = 'http://192.168.10.234:5000/api/auth';
 
   static Map<String, String> get headers => {
@@ -29,6 +30,45 @@ class ApiService {
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('auth_token');
+  }
+
+  // Save refresh token
+  static Future<void> saveRefreshToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('refresh_token', token);
+  }
+
+  // Get refresh token
+  static Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('refresh_token');
+  }
+
+  // Refresh access token using backend
+  static Future<Map<String, dynamic>> refreshToken() async {
+    final token = await getRefreshToken();
+    if (token == null) return {'success': false, 'error': 'No refresh token'};
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/refresh-token'),
+        headers: headers,
+        body: jsonEncode({'token': token}),
+      );
+
+      final result = _handleResponse(response);
+
+      if (result['success'] && result['accessToken'] != null) {
+        await saveToken(result['accessToken']);
+        if (result['refreshToken'] != null) {
+          await saveRefreshToken(result['refreshToken']);
+        }
+      }
+
+      return result;
+    } catch (e) {
+      return _handleError(e);
+    }
   }
 
   static Future<void> removeToken() async {
@@ -77,13 +117,21 @@ class ApiService {
         body: jsonEncode({'email': email, 'otp': otp}),
       );
 
-      final result = _handleResponse(response);
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
 
-      if (result['success'] == true && result['data']?['accessToken'] != null) {
-        await saveToken(result['data']['accessToken']);
-      }
+  static Future<Map<String, dynamic>> resendOTP({required String email}) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/resend-otp'),
+        headers: headers,
+        body: jsonEncode({'email': email}),
+      );
 
-      return result;
+      return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
     }
@@ -101,11 +149,9 @@ class ApiService {
       );
 
       final result = _handleResponse(response);
-
-      if (result['success'] == true && result['data']?['accessToken'] != null) {
+      if (result['success'] && result['data']?['accessToken'] != null) {
         await saveToken(result['data']['accessToken']);
       }
-
       return result;
     } catch (e) {
       return _handleError(e);
@@ -141,6 +187,7 @@ class ApiService {
           'email': email,
           'otp': otp,
           'newPassword': newPassword,
+          'confirmPassword': newPassword,
         }),
       );
 
@@ -150,7 +197,6 @@ class ApiService {
     }
   }
 
-  // NEW: Get user profile
   static Future<Map<String, dynamic>> getProfile() async {
     try {
       final response = await http.get(
@@ -164,30 +210,29 @@ class ApiService {
     }
   }
 
-  // FIXED: Update profile to match backend route
   static Future<Map<String, dynamic>> updateProfile({
     String? fullName,
     String? email,
     String? phoneNumber,
     String? country,
+    String? countryCode,
     String? address,
     String? oldPassword,
     String? newPassword,
     File? avatarFile,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl/update-profile'); // Changed from /profile to /update-profile
+      final uri = Uri.parse('$baseUrl/update-profile');
       final request = http.MultipartRequest('PUT', uri);
-
-      final authHeadersMap = await authHeaders;
-      // Remove Content-Type for multipart requests
-      authHeadersMap.remove('Content-Type');
-      request.headers.addAll(authHeadersMap);
+      final authMap = await authHeaders;
+      authMap.remove('Content-Type');
+      request.headers.addAll(authMap);
 
       if (fullName != null) request.fields['fullName'] = fullName;
       if (email != null) request.fields['email'] = email;
       if (phoneNumber != null) request.fields['phoneNumber'] = phoneNumber;
       if (country != null) request.fields['country'] = country;
+      if (countryCode != null) request.fields['countryCode'] = countryCode;
       if (address != null) request.fields['address'] = address;
       if (oldPassword != null) request.fields['oldPassword'] = oldPassword;
       if (newPassword != null) request.fields['newPassword'] = newPassword;
@@ -198,9 +243,8 @@ class ApiService {
         );
       }
 
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
@@ -214,11 +258,8 @@ class ApiService {
         headers: await authHeaders,
       );
 
-      final result = _handleResponse(response);
-
       await removeToken();
-
-      return result;
+      return _handleResponse(response);
     } catch (e) {
       await removeToken();
       return _handleError(e);
@@ -231,33 +272,41 @@ class ApiService {
   }
 
   static Map<String, dynamic> _handleResponse(http.Response response) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
+    try {
+      final Map<String, dynamic> data = jsonDecode(response.body);
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return {'success': true, 'data': data, 'statusCode': response.statusCode};
-    } else {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return {
+          'success': data['success'] ?? true,
+          'data': data, // <-- keep all the data, don't assume 'user'
+          'message': data['message'] ?? '',
+          'statusCode': response.statusCode,
+        };
+      } else {
+        return {
+          'success': false,
+          'error': data['error'] ?? data['message'] ?? 'Unknown error',
+          'data': data,
+          'statusCode': response.statusCode,
+        };
+      }
+    } catch (e) {
       return {
         'success': false,
-        'error': data['message'] ?? data['error'] ?? 'Unknown error occurred',
-        'data': data,
-        'statusCode': response.statusCode,
+        'error': 'Invalid response format',
+        'data': null,
       };
     }
   }
 
   static Map<String, dynamic> _handleError(dynamic error) {
-    String errorMessage = 'Network error occurred';
-
-    if (error is SocketException) {
+    String errorMessage = 'Network error';
+    if (error is SocketException)
       errorMessage = 'No internet connection';
-    } else if (error is http.ClientException) {
-      errorMessage = 'Failed to connect to server';
-    } else if (error is FormatException) {
-      errorMessage = 'Invalid response format';
-    } else {
+    else if (error is http.ClientException)
+      errorMessage = 'Failed to connect';
+    else
       errorMessage = error.toString();
-    }
-
     return {'success': false, 'error': errorMessage, 'data': null};
   }
 }

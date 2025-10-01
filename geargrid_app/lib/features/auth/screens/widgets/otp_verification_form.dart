@@ -1,9 +1,13 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../common/widgets/otp_input_field.dart';
-import '../../../../core/services/api_services.dart';
+import '../../../../core/providers/flutter_riverpod.dart';
+import '../../../../features/auth/controllers/auth_controller.dart';
 
-class OTPVerificationForm extends StatefulWidget {
+class OTPVerificationForm extends ConsumerStatefulWidget {
   final String email;
   final bool isPasswordReset;
   final VoidCallback onOTPVerified;
@@ -22,16 +26,22 @@ class OTPVerificationForm extends StatefulWidget {
   });
 
   @override
-  State<OTPVerificationForm> createState() => _OTPVerificationFormState();
+  ConsumerState<OTPVerificationForm> createState() =>
+      _OTPVerificationFormState();
 }
 
-class _OTPVerificationFormState extends State<OTPVerificationForm> {
-  final List<TextEditingController> controllers =
-      List.generate(6, (_) => TextEditingController());
+class _OTPVerificationFormState extends ConsumerState<OTPVerificationForm> {
+  final List<TextEditingController> controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
-  bool isLoading = false;
-  bool isResending = false;
   Timer? _debounceTimer;
+
+  AuthController get _authController => ref.read(authControllerProvider);
+
+  bool get isLoading => ref.watch(authControllerProvider).isLoading;
+  bool get isResending => ref.watch(authControllerProvider).isResending;
 
   @override
   void dispose() {
@@ -41,15 +51,7 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
     super.dispose();
   }
 
-  String _getFullPhoneNumber() {
-    if (widget.registrationData != null &&
-        widget.registrationData!['countryCode'] != null) {
-      return '${widget.registrationData!['countryCode']}${widget.registrationData!['phone']}';
-    }
-    return widget.registrationData?['phone'] ?? '';
-  }
-
-  void _verifyOtp() async {
+  Future<void> _verifyOtp() async {
     final otp = controllers.map((c) => c.text).join();
 
     if (otp.length != 6) {
@@ -57,26 +59,44 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
       return;
     }
 
-    setState(() => isLoading = true);
+    final success = await _authController.verifyOTP(
+      email: widget.email,
+      otp: otp,
+    );
+
+    if (success) {
+      widget.onSuccess(
+        widget.isPasswordReset
+            ? 'OTP verified successfully!'
+            : 'Registration completed successfully!',
+      );
+      widget.onOTPVerified();
+    } else {
+      widget.onError(_authController.error ?? 'Invalid OTP. Please try again.');
+      _clearOTPFields();
+    }
+  }
+
+  Future<void> _resendOTP() async {
+    _authController.clearError();
 
     try {
-      final result = await ApiService.verifyOTP(email: widget.email, otp: otp);
+      bool success;
+      success = await _authController.resendOTP(
+        email: widget.email,
+        isPasswordReset: widget.isPasswordReset,
+      );
 
-      setState(() => isLoading = false);
-
-      if (result['success'] == true) {
-        widget.onSuccess(widget.isPasswordReset
-            ? 'OTP verified successfully!'
-            : 'Registration completed successfully!');
-        widget.onOTPVerified();
-      } else {
-        widget.onError(result['error'] ?? 'Invalid OTP. Please try again.');
+      if (success) {
+        widget.onSuccess('Verification code sent successfully!');
         _clearOTPFields();
+      } else {
+        widget.onError(
+          _authController.error ?? 'Failed to resend code. Please try again.',
+        );
       }
     } catch (e) {
-      setState(() => isLoading = false);
-      widget.onError('Verification failed. Please try again.');
-      _clearOTPFields();
+      widget.onError('Failed to resend code: ${e.toString()}');
     }
   }
 
@@ -85,49 +105,11 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
     focusNodes[0].requestFocus();
   }
 
-  void _resendOTP() async {
-    if (isResending) return;
-
-    setState(() => isResending = true);
-
-    try {
-      Map<String, dynamic> result;
-
-      if (widget.isPasswordReset) {
-        result = await ApiService.forgotPassword(email: widget.email);
-      } else {
-        if (widget.registrationData != null) {
-          result = await ApiService.register(
-            fullName: widget.registrationData!['name']!,
-            email: widget.registrationData!['email']!,
-            password: widget.registrationData!['password']!,
-            country: widget.registrationData!['country']!,
-            countryCode: widget.registrationData!['countryCode']!,
-            address: widget.registrationData!['address']!,
-            phoneNumber: _getFullPhoneNumber(),
-          );
-        } else {
-          throw Exception('Registration data not available');
-        }
-      }
-
-      setState(() => isResending = false);
-
-      if (result['success'] == true) {
-        widget.onSuccess('Verification code sent successfully!');
-        _clearOTPFields();
-      } else {
-        widget.onError(result['error'] ?? 'Failed to resend code. Please try again.');
-      }
-    } catch (e) {
-      setState(() => isResending = false);
-      widget.onError('Failed to resend code. Please try again.');
-    }
-  }
-
   void _onOTPFieldChanged(int index, String value) {
-    if (value.length == 1 && index < 5) focusNodes[index + 1].requestFocus();
-    else if (value.isEmpty && index > 0) focusNodes[index - 1].requestFocus();
+    if (value.length == 1 && index < 5)
+      focusNodes[index + 1].requestFocus();
+    else if (value.isEmpty && index > 0)
+      focusNodes[index - 1].requestFocus();
 
     _debounceTimer?.cancel();
     if (controllers.every((c) => c.text.isNotEmpty) && !isLoading) {
@@ -147,13 +129,15 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
       children: [
         Text(
           'OTP Verification',
-          style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 16),
         Text(
           'Enter the 6-digit code sent to',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: colors.onSurface.withValues(alpha: 0.6),
+            color: colors.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 4),
@@ -188,21 +172,25 @@ class _OTPVerificationFormState extends State<OTPVerificationForm> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              disabledBackgroundColor: colors.outline.withOpacity(0.3),
+              disabledBackgroundColor: colors.outline.withValues(alpha: 0.3),
             ),
-            child: isLoading
-                ? SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(colors.onPrimary),
-                      strokeWidth: 2,
+            child:
+                isLoading
+                    ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(colors.onPrimary),
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : const Text(
+                      'Verify OTP',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  )
-                : const Text(
-                    'Verify OTP',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
           ),
         ),
         const SizedBox(height: 24),

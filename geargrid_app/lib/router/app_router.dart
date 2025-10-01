@@ -8,6 +8,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/profile/update_profile_screen.dart';
+import '../features/notifications/notifications_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -16,6 +17,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         builder: (context, state) => const AnimatedSplashScreen(),
+      ),
+
+      GoRoute(
+        path: '/main-layout',
+        name: 'main-layout',
+        builder: (context, state) => MainLayout(),
       ),
 
       GoRoute(
@@ -56,9 +63,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
-        path: '/main-layout',
-        name: 'main-layout',
-        builder: (context, state) => MainLayout(),
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => NotificationsScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
