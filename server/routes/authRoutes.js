@@ -1,5 +1,5 @@
 import express from "express";
-import { register, verifyOTP, login, forgotPassword, resetPassword, logout, updateProfile, getProfile } from "../controllers/authController.js";
+import { register, verifyOTP, login, forgotPassword, resetPassword, logout, updateProfile, getProfile, resendOTP } from "../controllers/authController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import { upload } from "../middlewares/upload.js";
 
@@ -11,6 +11,7 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.put("/update-profile", authenticateToken, upload.single("avatar"), updateProfile);
 router.get("/profile", authenticateToken, getProfile);
+router.post("/resend-otp", resendOTP);
 router.post("/logout", logout);
 
 export default router;

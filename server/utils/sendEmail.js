@@ -196,7 +196,6 @@ export async function sendPasswordResetOTP(to, otpCode) {
     });
 }
 
-// Generic OTP sender (for backward compatibility)
 export async function sendOTP(to, otpCode, type = 'registration') {
     if (type === 'registration') {
         return await sendRegistrationOTP(to, otpCode);

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 import { validateRegister } from "../middlewares/validateInput.js";
 import { generateOTP } from "../utils/generateOtp.js";
-import { sendRegistrationOTP } from "../utils/sendEmail.js";
+import { sendRegistrationOTP, sendPasswordResetOTP, sendOTP } from "../utils/sendEmail.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import { verifyRefreshToken } from "../utils/verifyToken.js";
 
@@ -69,6 +69,33 @@ export async function verifyOTP(req, res) {
     res.json({ message: "Account verified successfully" });
 }
 
+export async function resendOTP(req, res) {
+    try {
+        const { email, type } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Generate new OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        user.otp = otp;
+        user.otpExpires = Date.now() + 3 * 60 * 1000; // 3 minutes for registration
+        if (type === "password-reset") {
+            user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes for password reset
+        }
+
+        await user.save();
+
+        await sendOTP(email, otp, type);
+
+        res.json({ message: `OTP resent successfully for ${type}` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+}
+
 // LOGIN
 export async function login(req, res) {
     const { email, password } = req.body;
@@ -109,7 +136,7 @@ export async function forgotPassword(req, res) {
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    await sendEmail(email, "Password Reset", `Your reset OTP is: ${otp}`);
+    await sendPasswordResetOTP(email, otp);
     res.json({ message: "OTP sent to your email" });
 }
 
