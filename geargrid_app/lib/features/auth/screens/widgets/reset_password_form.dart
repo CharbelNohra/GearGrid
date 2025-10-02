@@ -64,8 +64,7 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
       // Simulate API call to reset password
       await Future.delayed(const Duration(seconds: 2));
 
-      // Call your API here to reset password
-      // await AuthService.resetPassword(widget.email, newPasswordController.text.trim());
+      // Send password reset email
 
       setState(() {
         isLoading = false;
