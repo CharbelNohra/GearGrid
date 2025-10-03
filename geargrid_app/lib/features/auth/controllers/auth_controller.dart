@@ -38,18 +38,27 @@ class AuthController extends ChangeNotifier {
   Future<void> initialize() async {
     _setLoading(true);
     try {
+      final savedUser = await ApiService.getUser();
+      if (savedUser != null) {
+        _setUser(User.fromJson(savedUser));
+      }
+
       if (await ApiService.isAuthenticated()) {
         final result = await ApiService.getProfile();
         if (result['success']) {
           _setUser(User.fromJson(result['data']['user']));
         } else {
           await ApiService.removeToken();
+          await ApiService.removeRefreshToken();
+          await ApiService.removeUser();
           _setUser(null);
         }
       }
     } catch (e) {
       _setError(e.toString());
       await ApiService.removeToken();
+      await ApiService.removeRefreshToken();
+      await ApiService.removeUser();
       _setUser(null);
     } finally {
       _setLoading(false);

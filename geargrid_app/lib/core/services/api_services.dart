@@ -32,19 +32,16 @@ class ApiService {
     return prefs.getString('auth_token');
   }
 
-  // Save refresh token
   static Future<void> saveRefreshToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('refresh_token', token);
   }
 
-  // Get refresh token
   static Future<String?> getRefreshToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('refresh_token');
   }
 
-  // Refresh access token using backend
   static Future<Map<String, dynamic>> refreshToken() async {
     final token = await getRefreshToken();
     if (token == null) return {'success': false, 'error': 'No refresh token'};
@@ -151,6 +148,12 @@ class ApiService {
       final result = _handleResponse(response);
       if (result['success'] && result['data']?['accessToken'] != null) {
         await saveToken(result['data']['accessToken']);
+        if (result['data']['refreshToken'] != null) {
+          await saveRefreshToken(result['data']['refreshToken']);
+        }
+        if (result['data']['user'] != null) {
+          await saveUser(result['data']['user']);
+        }
       }
       return result;
     } catch (e) {
@@ -259,9 +262,13 @@ class ApiService {
       );
 
       await removeToken();
+      await removeRefreshToken();
+      await removeUser();
       return _handleResponse(response);
     } catch (e) {
       await removeToken();
+      await removeRefreshToken();
+      await removeUser();
       return _handleError(e);
     }
   }
@@ -271,6 +278,30 @@ class ApiService {
     return token != null && token.isNotEmpty;
   }
 
+  static Future<void> saveUser(Map<String, dynamic> user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user', jsonEncode(user));
+  }
+
+  static Future<Map<String, dynamic>?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userString = prefs.getString('user');
+    if (userString != null) {
+      return jsonDecode(userString);
+    }
+    return null;
+  }
+
+  static Future<void> removeUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user');
+  }
+
+  static Future<void> removeRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('refresh_token');
+  }
+
   static Map<String, dynamic> _handleResponse(http.Response response) {
     try {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -278,7 +309,7 @@ class ApiService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return {
           'success': data['success'] ?? true,
-          'data': data, // <-- keep all the data, don't assume 'user'
+          'data': data,
           'message': data['message'] ?? '',
           'statusCode': response.statusCode,
         };
