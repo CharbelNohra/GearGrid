@@ -17,10 +17,9 @@ import {
   SidebarSeparator,
 } from "./ui/sidebar";
 import {
-  AddProductIcon,
   DashboardIcon,
   NotificationIcon,
-  ProductsIcon,
+  OrderIcon,
 } from "./IconClient";
 import Image from "next/image";
 import {
@@ -36,9 +35,8 @@ import { useAuth } from "@/context/AuthContext";
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: DashboardIcon },
   { title: "Send Notification", url: "#", icon: NotificationIcon },
-  { title: "Add Product", url: "#", icon: AddProductIcon },
-  { title: "View Products", url: "#", icon: ProductsIcon },
   { title: "View Users", url: "#", icon: UsersIcon },
+  { title: "View Incoming Orders", url: "#", icon: OrderIcon}
 ];
 
 const AppSidebarContent = () => {

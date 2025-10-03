@@ -238,7 +238,7 @@ const Profile = () => {
           )}
         </div>
         <div className="text-center">
-          <h3 className="text-mid">#{user.userId}</h3>
+          <h3 className="text-mid">ID: {user.userId}</h3>
         </div>
       </div>
 

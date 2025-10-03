@@ -11,17 +11,12 @@ export const NotificationIcon = dynamic(
     { ssr: false }
 );
 
-export const AddProductIcon = dynamic(
-    () => import("lucide-react").then(mod => mod.PlusCircle),
-    { ssr: false }
-);
-
-export const ProductsIcon = dynamic(
-    () => import("lucide-react").then(mod => mod.Package),
-    { ssr: false }
-);
-
 export const UsersIcon = dynamic(
     () => import("lucide-react").then(mod => mod.Users),
     { ssr: false }
+);
+
+export const OrderIcon = dynamic(
+    () => import("lucide-react").then(mod => mod.ShoppingBag),
+    {ssr: false}
 );
