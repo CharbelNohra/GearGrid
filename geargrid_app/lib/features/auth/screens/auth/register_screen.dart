@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/utils/snackbar_helper.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import 'widgets/registration_form.dart';
-import '../../../common/widgets/app_logo.dart';
+import '../../../../common/widgets/app_logo.dart';
 import 'otp_screen.dart';
 
 class RegisterScreen extends StatefulWidget {

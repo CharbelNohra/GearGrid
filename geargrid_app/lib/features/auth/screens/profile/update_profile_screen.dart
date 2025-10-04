@@ -6,9 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geargrid/common/widgets/custom_app_bar.dart';
 import 'package:geargrid/common/widgets/custom_textfield.dart';
 import 'package:geargrid/core/utils/snackbar_helper.dart';
-import '../../common/widgets/dropdown_list.dart';
-import '../../core/constants/countries_phone_code.dart';
-import '../../core/providers/flutter_riverpod.dart';
+import '../../../../common/widgets/dropdown_list.dart';
+import '../../../../core/constants/countries_phone_code.dart';
+import '../../../../core/providers/flutter_riverpod.dart';
 
 class UpdateProfileScreen extends ConsumerStatefulWidget {
   const UpdateProfileScreen({super.key});

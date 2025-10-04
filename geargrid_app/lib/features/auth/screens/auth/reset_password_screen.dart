@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/utils/snackbar_helper.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import 'widgets/reset_password_form.dart';
 import 'widgets/auth_header.dart';
 

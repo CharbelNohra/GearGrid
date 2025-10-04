@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../common/widgets/dropdown_list.dart';
-import '../../../../common/widgets/custom_textfield.dart';
-import '../../../../core/constants/countries_phone_code.dart';
+import '../../../../../common/widgets/dropdown_list.dart';
+import '../../../../../common/widgets/custom_textfield.dart';
+import '../../../../../core/constants/countries_phone_code.dart';
 import 'step_header.dart';
 
 class RegistrationStepTwo extends StatelessWidget {

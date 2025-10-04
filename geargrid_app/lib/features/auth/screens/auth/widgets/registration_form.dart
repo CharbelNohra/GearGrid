@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/countries_phone_code.dart';
-import '../../../../core/providers/flutter_riverpod.dart';
-import '../../../../core/utils/snackbar_helper.dart';
-import '../../../../core/utils/validators.dart';
+import '../../../../../core/constants/countries_phone_code.dart';
+import '../../../../../core/providers/flutter_riverpod.dart';
+import '../../../../../core/utils/snackbar_helper.dart';
+import '../../../../../core/utils/validators.dart';
 import 'registration_step_one.dart';
 import 'registration_step_two.dart';
 import 'registration_navigation.dart';

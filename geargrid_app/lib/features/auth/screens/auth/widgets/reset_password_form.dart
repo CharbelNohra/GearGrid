@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../../common/widgets/custom_button.dart';
-import '../../../../common/widgets/custom_textfield.dart';
-import '../../../../core/utils/validators.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../../common/widgets/custom_button.dart';
+import '../../../../../common/widgets/custom_textfield.dart';
+import '../../../../../core/providers/flutter_riverpod.dart';
+import '../../../../../core/utils/validators.dart';
 import 'auth_icon_container.dart';
 
-class ResetPasswordForm extends StatefulWidget {
+class ResetPasswordForm extends ConsumerStatefulWidget {
   final String email;
   final VoidCallback onPasswordReset;
   final Function(String) onError;
@@ -19,10 +21,10 @@ class ResetPasswordForm extends StatefulWidget {
   });
 
   @override
-  State<ResetPasswordForm> createState() => _ResetPasswordFormState();
+  ConsumerState<ResetPasswordForm> createState() => _ResetPasswordFormState();
 }
 
-class _ResetPasswordFormState extends State<ResetPasswordForm> {
+class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   bool isLoading = false;
@@ -64,14 +66,20 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
       // Simulate API call to reset password
       await Future.delayed(const Duration(seconds: 2));
 
-      // Send password reset email
+      final authController = ref.read(authControllerProvider);
+
+      await authController.resetPassword(
+        email: widget.email,
+        newPassword: newPasswordController.text.trim(),
+        confirmPassword: confirmPasswordController.text.trim(),
+      );
 
       setState(() {
         isLoading = false;
       });
 
       widget.onSuccess("Password reset successfully!");
-      
+
       // Navigate back to login
       widget.onPasswordReset();
     } catch (e) {
@@ -91,10 +99,8 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Icon illustration
-        const AuthIconContainer(
-          icon: Icons.lock_person,
-        ),
-        
+        const AuthIconContainer(icon: Icons.lock_person),
+
         const SizedBox(height: 32),
 
         // Title and description
@@ -106,9 +112,9 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
           ),
           textAlign: TextAlign.center,
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         Text(
           "Your new password must be different from your previous password.",
           style: theme.textTheme.bodyMedium?.copyWith(
@@ -170,11 +176,7 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: colors.primary,
-                    size: 20,
-                  ),
+                  Icon(Icons.info_outline, color: colors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     "Password Requirements:",

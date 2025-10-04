@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../common/widgets/app_logo.dart';
+import '../../../../common/widgets/app_logo.dart';
 import 'widgets/login_form.dart';
-import '../../../core/utils/snackbar_helper.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

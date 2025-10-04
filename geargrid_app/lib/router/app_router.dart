@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geargrid/animated_splash.dart';
 import 'package:go_router/go_router.dart';
 import '../common/layouts/main_layout.dart';
-import '../features/auth/screens/forgot_password_screen.dart';
-import '../features/auth/screens/login_screen.dart';
-import '../features/auth/screens/otp_screen.dart';
-import '../features/auth/screens/register_screen.dart';
-import '../features/profile/update_profile_screen.dart';
-import '../features/notifications/notifications_screen.dart';
+import '../features/auth/screens/auth/forgot_password_screen.dart';
+import '../features/auth/screens/auth/login_screen.dart';
+import '../features/auth/screens/auth/otp_screen.dart';
+import '../features/auth/screens/auth/register_screen.dart';
+import '../features/auth/screens/cart/cart_screen.dart';
+import '../features/auth/screens/profile/update_profile_screen.dart';
+import '../features/auth/screens/notifications/notifications_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -66,6 +67,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/notifications',
         name: 'notifications',
         builder: (context, state) => NotificationsScreen(),
+      ),
+
+      GoRoute(
+        path: '/cart',
+        name: 'cart',
+        builder: (context, state) => CartScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

@@ -3,9 +3,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../common/widgets/otp_input_field.dart';
-import '../../../../core/providers/flutter_riverpod.dart';
-import '../../../../features/auth/controllers/auth_controller.dart';
+import '../../../../../common/widgets/otp_input_field.dart';
+import '../../../../../core/providers/flutter_riverpod.dart';
+import '../../../controllers/auth_controller.dart';
 
 class OTPVerificationForm extends ConsumerStatefulWidget {
   final String email;

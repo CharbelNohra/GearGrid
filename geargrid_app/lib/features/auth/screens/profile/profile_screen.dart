@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geargrid/core/utils/snackbar_helper.dart';
 import 'package:go_router/go_router.dart';
-import '../../common/widgets/light_dark.dart';
-import '../../common/widgets/custom_app_bar.dart';
-import '../../core/providers/flutter_riverpod.dart';
+import '../../../../common/widgets/light_dark.dart';
+import '../../../../common/widgets/custom_app_bar.dart';
+import '../../../../core/providers/flutter_riverpod.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});

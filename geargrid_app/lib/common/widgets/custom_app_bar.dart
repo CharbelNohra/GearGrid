@@ -20,6 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentLocation = GoRouterState.of(context).uri.toString();
     return AppBar(
       automaticallyImplyLeading: automaticallyImplyLeading,
       leading:
@@ -35,17 +36,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         _BadgeIconButton(
           icon: Icons.notifications,
           count: notificationCount,
-          onTap: () { 
-            context.push('/notifications');
+          onTap: () {
+            if (currentLocation != '/notifications') {
+              context.push('/notifications');
+            }
           },
         ),
-
+        
         // 🛒 Cart
         _BadgeIconButton(
           icon: Icons.shopping_cart,
           count: cartCount,
           onTap: () {
-            print('Cart tapped');
+            if (currentLocation != '/cart') {
+              context.push('/cart');
+            }
           },
         ),
       ],

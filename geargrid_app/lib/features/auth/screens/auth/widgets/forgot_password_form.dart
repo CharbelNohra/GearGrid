@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../common/widgets/custom_button.dart';
-import '../../../../common/widgets/custom_textfield.dart';
-import '../../../../core/providers/flutter_riverpod.dart';
-import '../../../../core/utils/snackbar_helper.dart';
-import '../../../../core/utils/validators.dart';
+import '../../../../../common/widgets/custom_button.dart';
+import '../../../../../common/widgets/custom_textfield.dart';
+import '../../../../../core/providers/flutter_riverpod.dart';
+import '../../../../../core/utils/snackbar_helper.dart';
+import '../../../../../core/utils/validators.dart';
 import 'auth_icon_container.dart';
 
 class ForgotPasswordForm extends ConsumerStatefulWidget {

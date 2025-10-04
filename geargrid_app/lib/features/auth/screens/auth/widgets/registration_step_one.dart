@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../common/widgets/custom_textfield.dart';
+import '../../../../../common/widgets/custom_textfield.dart';
 import 'step_header.dart';
 
 class RegistrationStepOne extends StatelessWidget {

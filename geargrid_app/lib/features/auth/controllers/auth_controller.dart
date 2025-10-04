@@ -178,19 +178,20 @@ class AuthController extends ChangeNotifier {
 
   Future<bool> resetPassword({
     required String email,
-    required String otp,
     required String newPassword,
+    required String confirmPassword,
   }) async {
     _setLoading(true);
     _setError(null);
     try {
       final result = await ApiService.resetPassword(
         email: email,
-        otp: otp,
         newPassword: newPassword,
+        confirmPassword: confirmPassword,
       );
+
       if (result['success']) return true;
-      _setError(result['error']);
+      _setError(result['error'] ?? 'Failed to reset password');
       return false;
     } catch (e) {
       _setError(e.toString());

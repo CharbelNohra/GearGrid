@@ -1,9 +1,9 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:geargrid/features/favorites/favorites_screen.dart';
-import '../../features/Home/home.dart';
-import '../../features/profile/profile_screen.dart';
-import '../../features/search/search_screen.dart';
+import 'package:geargrid/features/auth/screens/favorites/favorites_screen.dart';
+import '../../features/auth/screens/home/home.dart';
+import '../../features/auth/screens/profile/profile_screen.dart';
+import '../../features/auth/screens/search/search_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});

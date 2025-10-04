@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../../common/widgets/custom_app_bar.dart';
+import '../../../../common/widgets/custom_app_bar.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen
+({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Home',
+        title: 'Favorites',
         automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Text(
-          'Home Screen',
+          'Favorites Screen',
           style: TextStyle(
             fontSize: 32,
             color: Theme.of(context).colorScheme.onSurface,

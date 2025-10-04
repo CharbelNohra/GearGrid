@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.10.234:5000/api/auth';
+  static const String baseUrl = 'http://192.168.1.102:5000/api/auth';
 
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
@@ -179,8 +179,8 @@ class ApiService {
 
   static Future<Map<String, dynamic>> resetPassword({
     required String email,
-    required String otp,
     required String newPassword,
+    required String confirmPassword,
   }) async {
     try {
       final response = await http.post(
@@ -188,15 +188,25 @@ class ApiService {
         headers: headers,
         body: jsonEncode({
           'email': email,
-          'otp': otp,
           'newPassword': newPassword,
-          'confirmPassword': newPassword,
+          'confirmPassword': confirmPassword,
         }),
       );
 
-      return _handleResponse(response);
+      final data = jsonDecode(response.body);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Password reset successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'error': data['error'] ?? 'Failed to reset password',
+        };
+      }
     } catch (e) {
-      return _handleError(e);
+      return {'success': false, 'error': e.toString()};
     }
   }
 
